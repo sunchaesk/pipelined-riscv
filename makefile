@@ -1,31 +1,45 @@
-VERILOG_COMPILER:= iverilog
-EXEC_F := exe
-# SRCS := $(wildcard *.v) $(wildcard */*.v)
-SRCS := $(wildcard *.v)
-TEST ?= test/alu_tb.v
+MODULE=riscv
 
+VSRCS:=$(wildcard *.v)
 
-# iverilog flags
-GENERATION_FLAG := -g2012
-WARNING_FLAG := -Wall -Wno-timescale
-INCLUDE_FLAG := -I test/
+.PHONY:sim
+sim: waveform.vcd
 
-# tcl / gtkwave
-GFLAGS := -S gtkwave.tcl
+.PHONY:verilate
+verilate: .stamp.verilate
 
-all: $(SRCS) $(TEST)
-	$(VERILOG_COMPILER) $(GENERATION_FLAG) $(WARNING_FLAG) -o $(EXEC_F) $(SRCS) $(TEST) $(INCLUDE_FLAG)
-	vvp $(EXEC_F)
-	gtkwave $(GFLAGS) $(EXEC_F).vcd
+.PHONY:build
+build: obj_dir/Valu
 
-# co stands for: "compilation only" -> no gtkwave simulation
-co: $(SRCS)
-	$(VERILOG_COMPILER) $(GENERATION_FLAG) $(WARNING_FLAG) -o $(EXEC_F) $(SRCS)
-	vvp $(EXEC_F)
+.PHONY:waves
+waves: waveform.vcd
+	@echo
+	@echo "### WAVES ###"
+	gtkwave -S gtkwave.tcl waveform.vcd
 
+waveform.vcd: ./obj_dir/V$(MODULE)
+	@echo
+	@echo "### SIMULATING ###"
+	@./obj_dir/V$(MODULE)
+
+./obj_dir/V$(MODULE): .stamp.verilate
+	@echo
+	@echo "### BUILDING SIM ###"
+	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
+
+.stamp.verilate: $(MODULE).v ./test/tb_$(MODULE).cpp
+	@echo
+	@echo "### VERILATING ###"
+	verilator --trace -cc $(VSRCS) --exe ./test/tb_$(MODULE).cpp --top-module riscv
+	@touch .stamp.verilate
+
+.PHONY:lint
+lint: $(MODULE).v
+	verilator --lint-only $(MODULE).v
+
+.PHONY: clean
 clean:
-	rm -f *.vcd.pdf
-	rm -f *.vcd
-	rm -f $(EXEC_F)
-
-.PHONY: clean co
+	rm -rf .stamp.*;
+	rm -rf ./obj_dir
+	rm -rf waveform.vcd
+	rm -rf waveform.vcd.pdf
