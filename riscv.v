@@ -2,25 +2,33 @@
 module riscv (
               input         clk,
               input         reset,
-              input [31:0]  in_a,
-              input [31:0]  in_b,
-              input [3:0]   alu_control,
-              output        zero_flag,
-              output [31:0] alu_result
+              output [31:0] pc_out
               );
 
-   wire                     clk_test;
-   wire                     reset_test;
+   // pc and instruction reg
+   reg [31:0]               pc;
+   reg [31:0]               instruction;
 
-   assign clk_test = clk;
-   assign reset_test = reset;
+   // pipelining registers
+   reg [31:0]               if_id_instr;
+   reg [31:0]               if_id_pc;
 
-   alu alu_unit (
-                 .in_a(in_a),
-                 .in_b(in_b),
-                 .alu_control(alu_control),
-                 .alu_result(alu_result),
-                 .zero_flag(zero_flag)
-                 );
+   reg [31:0]               id_ex_instr;
+   reg [31:0]               id_ex_pc;
+   reg [31:0]               id_ex_reg_a;
+   reg [31:0]               id_ex_reg_b;
+   reg [31:0]               id_ex_alu_control;
+
+   reg [31:0]               ex_mem_alu_result;
+   reg [31:0]               ex_mem_reg_b;
+   reg [31:0]               ex_mem_instr;
+
+   reg [31:0]               mem_wb_alu_result;
+   reg [31:0]               mem_wb_instr;
+   reg [31:0]               mem_wb_data;
+
+   wire [31:0]              alu_result;
+   wire                     zero_flag;
+
 
 endmodule
