@@ -3,6 +3,7 @@ module ID (
            input             clk,
            input             reset,
            input [31:0]      instr,
+           output [4:0]      rd,
            output reg [31:0] reg_a,
            output reg [31:0] reg_b,
            output reg [3:0]  alu_control,
