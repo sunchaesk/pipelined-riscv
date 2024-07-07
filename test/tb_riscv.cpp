@@ -25,8 +25,8 @@ void dut_reset(Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time) {
 
 void dut_riscv_load_instruction(Vriscv *dut) {
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0xAAAAAAAA;
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x005303b3; // add x7, x6, x5
-    dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x405303b3; // sub x7, x6, x5
+    dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x005303b3; // add x7, x6, x5
+    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x405303b3; // sub x7, x6, x5
 }
 
 void dut_riscv_load_register_file(Vriscv *dut) {
