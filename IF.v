@@ -1,21 +1,49 @@
 module IF (
-           input             clk,
-           input             reset,
-           output reg [31:0] pc,
-           output reg [31:0] instr
-           );
+    input clk,
+    input reset,
+    input pc_src,             // Control signal to select between PC + 4 and branch destination
+    input [31:0] pc_branch_dest, // Branch target address
+    output reg [31:0] pc,     // Program counter
+    output reg [31:0] pc_plus_4, // Program counter + 4
+    output reg [31:0] instruction // Current instruction
+);
 
-   reg [31:0]                instr_mem [0:255];
+    reg [31:0] instr_mem [0:255]; // Instruction memory
 
-   always @(posedge clk or posedge reset) begin
-      if (reset) begin
-         pc <= 0;
-         instr <= 0;
-      end else begin
-         pc <= pc + 4;
-         instr <= instr_mem[pc >> 2]; // word aligned
-      end
-   end
+    reg [31:0] next_count;      // Next program counter value
+    reg [31:0] curr_count;       // Current program counter value
 
+    // Update the current program counter value
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            curr_count <= 0;
+        end else begin
+            curr_count <= next_count;
+        end
+    end
+
+    // Fetch the instruction from memory
+    always @(posedge clk or posedge reset) begin
+        if (reset) begin
+            instruction <= 0;
+        end else begin
+            instruction <= instr_mem[curr_count >> 2];
+        end
+    end
+
+    // Calculate the program counter + 4
+    always @(*) begin
+        pc_plus_4 = curr_count + 4;
+    end
+
+    // Output the current program counter value
+    always @(*) begin
+        pc = curr_count;
+    end
+
+    // Determine the next program counter value
+    always @(*) begin
+        next_count = pc_src ? pc_branch_dest : pc_plus_4;
+    end
 
 endmodule

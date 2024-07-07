@@ -1,18 +1,7 @@
 
 // pass -> refers to just passing the value to the forward
 module EX (
-           input         alu_src,
-           input [3:0]   alu_control,
-           input [4:0]   rd,
-           input [31:0]  pc,
-           input [31:0]  imm,
-           input [31:0]  rs1_data,
-           input [31:0]  rs2_data,
-           output        zero_flag,
-           output [3:0]  rd_pass,
-           output [31:0] alu_result,
-           output [31:0] rs2_data_pass, // rs2_data passed out
-           output [31:0] pc_next_jump_branch // pc in case of branching/jumping
+           input
            );
 
    wire [31:0]           operand_a;
