@@ -26,7 +26,9 @@ module riscv (
    wire                      id_ex_branch_d;
    wire [3:0]                id_ex_alu_control_d;
    wire                      id_ex_alu_src_d;
-   wire [31:0]               id_ex_pc_plus_4;
+   wire [31:0]               id_ex_pc_plus_4; // forward
+   wire [31:0]               id_ex_pc; // forward
+
    //ex mem
    wire [31:0]               ex_mem_alu_result;
    wire [31:0]               ex_mem_reg_b;
@@ -57,6 +59,7 @@ module riscv (
                .reset(reset),
                .writeback_control(1'b0), // TODO
                .instruction(if_id_instr),
+               .pc(if_id_pc),
                .pc_plus_4(if_id_pc_plus_4),
                .writeback_data(32'b0), // TODO
                // output start
@@ -72,7 +75,8 @@ module riscv (
                .branch_d(id_ex_branch_d),
                .alu_control_d(id_ex_alu_control_d),
                .alu_src_d(id_ex_alu_src_d),
-               .id_ex_pc_plus_4(id_ex_pc_plus_4)
+               .id_ex_pc_plus_4(id_ex_pc_plus_4),
+               .id_ex_pc(id_ex_pc)
                );
 
 

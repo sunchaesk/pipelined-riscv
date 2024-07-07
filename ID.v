@@ -5,6 +5,7 @@ module ID (
            input             reset,
            input             writeback_control,
            input [31:0]      instruction,
+           input [31:0]      pc,
            input [31:0]      pc_plus_4,
            input [31:0]      writeback_data,
 
@@ -21,7 +22,8 @@ module ID (
            output reg [3:0]  alu_control_d,
            output reg        alu_src_d,
            // forward
-           output reg [31:0] id_ex_pc_plus_4
+           output reg [31:0] id_ex_pc_plus_4,
+           output reg [31:0] id_ex_pc
            );
 
    reg [31:0]                reg_array [31:0]; // registers definition
@@ -67,6 +69,7 @@ module ID (
          result_src_d <= 2'b0;
          // foward
          id_ex_pc_plus_4 <= 32'b0;
+         id_ex_pc <= 32'b0;
       end else begin
          rs1_data <= reg_array[rs1];
          rs2_data <= reg_array[rs2];
@@ -81,6 +84,7 @@ module ID (
          result_src_d <= result_src_d_temp;
          // forward
          id_ex_pc_plus_4 <= pc_plus_4;
+         id_ex_pc <= pc;
       end
    end
 
