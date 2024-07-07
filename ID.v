@@ -4,6 +4,7 @@ module ID (
            input             clk,
            input             reset,
            input             writeback_control,
+           input [4:0]       rd,
            input [31:0]      instruction,
            input [31:0]      pc,
            input [31:0]      pc_plus_4,
@@ -71,6 +72,9 @@ module ID (
          id_ex_pc_plus_4 <= 32'b0;
          id_ex_pc <= 32'b0;
       end else begin
+         if (writeback_control) begin
+            reg_array[rd] <= writeback_data;
+         end
          rs1_data <= reg_array[rs1];
          rs2_data <= reg_array[rs2];
          rd_out <= instruction[11:7];

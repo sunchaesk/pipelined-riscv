@@ -35,16 +35,24 @@ module riscv (
    wire [31:0]               ex_mem_alu_result_e;
    wire [31:0]               ex_mem_writedata_e;
    wire [31:0]               ex_mem_pc_plus_4_e;
-   wire [4:0]                ex_mem_rd;
+   wire [4:0]                ex_mem_rd_e;
    wire                      ex_mem_regwrite_e;
    wire [1:0]                ex_mem_result_src_e;
    wire                      ex_mem_memwrite_e;
 
 
    // mem wb
-   wire [31:0]               mem_wb_alu_result;
-   wire [31:0]               mem_wb_instr;
-   wire [31:0]               mem_wb_data;
+   wire [31:0]               mem_wb_readdata_w;
+   wire                      mem_wb_regwrite_w;
+   wire [1:0]                mem_wb_result_src_w;
+   wire [31:0]               mem_wb_alu_result_w;
+   wire [31:00]              mem_wb_pc_plus_4_w;
+   wire [4:0]                mem_wb_rd_w;
+
+   // wb stuff
+   wire                      wb_regwrite;
+   wire [4:0]                wb_rd;
+   wire [31:0]               wb_result;
 
    //////// wire def
    wire [31:0]              alu_result;
@@ -65,11 +73,12 @@ module riscv (
    ID ID_unit (
                .clk(clk),
                .reset(reset),
-               .writeback_control(1'b0), // TODO
+               .writeback_control(wb_regwrite), // TODO
+               .rd(wb_rd),
                .instruction(if_id_instr),
                .pc(if_id_pc),
                .pc_plus_4(if_id_pc_plus_4),
-               .writeback_data(32'b0), // TODO
+               .writeback_data(wb_result), // TODO
                // output start
                .immediate(id_ex_imm),
                .rs1_data(id_ex_reg_a),
@@ -109,10 +118,44 @@ module riscv (
                .alu_result(ex_mem_alu_result_e),
                .writedata(ex_mem_writedata_e),
                .ex_mem_pc_plus_4_e(ex_mem_pc_plus_4_e),
-               .ex_mem_rd(ex_mem_rd),
+               .ex_mem_rd(ex_mem_rd_e),
                .ex_mem_regwrite_e(ex_mem_regwrite_e),
                .ex_mem_result_src_e(ex_mem_result_src_e),
                .ex_mem_memwrite_e(ex_mem_memwrite_e)
+               );
+
+   MEM MEM_unit (
+                 .clk(clk),
+                 .reset(reset),
+                 .regwrite_m(ex_mem_regwrite_e),
+                 .result_src_m(ex_mem_result_src_e),
+                 .memwrite_m(ex_mem_memwrite_e),
+                 .alu_result_m(ex_mem_alu_result_e),
+                 .writedata_m(ex_mem_writedata_e),
+                 .rd_m(ex_mem_rd_e),
+                 .pc_plus_4_m(ex_mem_pc_plus_4_e),
+                 // output
+                 .readdata(mem_wb_readdata_w),
+                 .mem_wb_regwrite(mem_wb_regwrite_w),
+                 .mem_wb_result_src(mem_wb_result_src_w),
+                 .mem_wb_alu_result(mem_wb_alu_result_w),
+                 .mem_wb_pc_plus_4(mem_wb_pc_plus_4_w),
+                 .mem_wb_rd(mem_wb_rd_w)
+                 );
+
+   WB WB_unit (
+               .clk(clk),
+               .reset(reset),
+               .regwrite_w(mem_wb_regwrite_w),
+               .result_src_w(mem_wb_result_src_w),
+               .alu_result_w(mem_wb_alu_result_w),
+               .readdata_w(mem_wb_readdata_w),
+               .rd_w(mem_wb_rd_w),
+               .pc_plus_4_w(mem_wb_pc_plus_4_w),
+               // output
+               .wb_regwrite(wb_regwrite),
+               .wb_rd(wb_rd),
+               .wb_result(wb_result)
                );
 
 

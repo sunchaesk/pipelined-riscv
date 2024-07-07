@@ -10,7 +10,7 @@ module MEM (
             input [4:0]       rd_m,
             input [31:0]      pc_plus_4_m,
 
-            output [31:0]     readdata,
+            output reg [31:0] readdata,
             //forward
             output reg        mem_wb_regwrite,
             output reg [1:0]  mem_wb_result_src,
@@ -28,12 +28,21 @@ module MEM (
          mem_wb_alu_result <= 32'b0;
          mem_wb_pc_plus_4 <= 32'b0;
          mem_wb_rd <= 5'b0;
+         readdata <= 32'b0;
       end else begin
          mem_wb_regwrite <= regwrite_m;
          mem_wb_result_src <= result_src_m;
          mem_wb_alu_result <= alu_result_m;
          mem_wb_pc_plus_4 <= pc_plus_4_m;
          mem_wb_rd <= rd_m;
+
+         //read memory
+         readdata <= mem_array[alu_result_m >> 2]; // TODO do i >> 2?
+
+         // write memory
+         if (memwrite_m) begin
+            mem_array[alu_result_m >> 2] <= writedata_m;
+         end
       end
 
    end
