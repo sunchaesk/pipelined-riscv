@@ -2,26 +2,41 @@
 module MEM (
             input             clk,
             input             reset,
-            input             mem_write,
-            input             mem_read,
-            input [31:0]      pc_next_jump_branch,
-            input [31:0]      alu_result,
-            input [31:0]      rs2_data,
-            output reg [31:0] mem_data
+            input             regwrite_m,
+            input [1:0]       result_src_m,
+            input             memwrite_m,
+            input [31:0]      alu_result_m,
+            input [31:0]      writedata_m,
+            input [4:0]       rd_m,
+            input [31:0]      pc_plus_4_m,
+
+            output [31:0]     readdata,
+            //forward
+            output reg        mem_wb_regwrite,
+            output reg [1:0]  mem_wb_result_src,
+            output reg [31:0] mem_wb_alu_result,
+            output reg [31:0] mem_wb_pc_plus_4,
+            output reg [4:0]  mem_wb_rd
             );
 
    reg [31:0]                 mem_array [0:1024];
 
    always @(posedge clk or posedge reset) begin
       if (reset) begin
-         mem_data <= 32'b0;
+         mem_wb_regwrite <= 1'b0;
+         mem_wb_result_src <= 2'b0;
+         mem_wb_alu_result <= 32'b0;
+         mem_wb_pc_plus_4 <= 32'b0;
+         mem_wb_rd <= 5'b0;
       end else begin
-         if (mem_read) begin
-            mem_data <= mem_array[alu_result >> 2];
-         end else if (mem_write) begin
-            mem_array[alu_result >> 2] <= rs2_data;
-         end
+         mem_wb_regwrite <= regwrite_m;
+         mem_wb_result_src <= result_src_m;
+         mem_wb_alu_result <= alu_result_m;
+         mem_wb_pc_plus_4 <= pc_plus_4_m;
+         mem_wb_rd <= rd_m;
       end
+
    end
+
 
 endmodule
