@@ -24,15 +24,26 @@ void dut_reset(Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time) {
 }
 
 void dut_riscv_load_instruction(Vriscv *dut) {
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0xAAAAAAAA;
-    dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x005303b3; // add x7, x6, x5
+    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00730393; // addi x7, x6, 7
+    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x005303b3; // add x7, x6, x5
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x405303b3; // sub x7, x6, x5
+    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00002383; // lw x7, 0(x0)
+    dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00402383; // lw x7, 4(x0)
 }
 
 void dut_riscv_load_register_file(Vriscv *dut) {
+    // initial initialization
     for (int i = 0; i < 32; i++){
         dut->riscv__DOT__ID_unit__DOT__reg_array[i] = i + 1;
     }
+
+    dut->riscv__DOT__ID_unit__DOT__reg_array[0] = 0;
+}
+
+void dut_riscv_load_memory(Vriscv *dut) {
+    dut->riscv__DOT__MEM_unit__DOT__mem_array[0] = 0x0000000A;
+    dut->riscv__DOT__MEM_unit__DOT__mem_array[1] = 0xBBBBBBBB;
+
 }
 
 
@@ -51,6 +62,7 @@ void d_dut_riscv_print_loaded_instructions(Vriscv *dut, vluint64_t &sim_time) {
 // run the reset, load instruction, load register file
 void dut_test_init (Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time){
     dut_riscv_load_instruction(dut);
+    dut_riscv_load_memory(dut);
     d_dut_riscv_print_loaded_instructions(dut, sim_time);
     dut_reset(dut, m_trace, sim_time);
     dut_riscv_load_register_file(dut); // load reg after reset because reset deletes reg
