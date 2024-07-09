@@ -88,7 +88,7 @@ module ID (
    end
 
    // Handle writeback on negative edge of the clock
-   always @(negedge clk) begin
+   always @(negedge clk or posedge reset) begin
       if (reset) begin
          for (i = 0; i < 32; i = i + 1) begin
             reg_array[i] <= 32'b0;
