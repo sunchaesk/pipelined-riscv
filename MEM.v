@@ -19,7 +19,7 @@ module MEM (
             output reg [4:0]  mem_wb_rd
             );
 
-   reg [31:0]                 mem_array [0:1024];
+   reg [31:0]                 mem_array [0:31];
 
    always @(posedge clk or posedge reset) begin
       if (reset) begin

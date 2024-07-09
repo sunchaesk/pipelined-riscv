@@ -15,20 +15,21 @@ module WB (
            );
 
    always @(posedge clk or posedge reset) begin
+   // always @(*) begin
       if (reset) begin
-         wb_regwrite <= 1'b0;
-         wb_rd <= 5'b0;
-         wb_result <= 32'b0; // Initialize to zero on reset
+         wb_regwrite = 1'b0;
+         wb_rd = 5'b0;
+         wb_result = 32'b0; // Initialize to zero on reset
       end else begin
-         wb_regwrite <= regwrite_w;
-         wb_rd <= rd_w;
+         wb_regwrite = regwrite_w;
+         wb_rd = rd_w;
 
          // MUX for result_src
          case(result_src_w)
-            2'b00: wb_result <= alu_result_w;
-            2'b01: wb_result <= readdata_w;
-            2'b10: wb_result <= pc_plus_4_w;
-            default: wb_result <= 32'b0; // Default case for safety
+            2'b00: wb_result = alu_result_w;
+            2'b01: wb_result = readdata_w;
+            2'b10: wb_result = pc_plus_4_w;
+            default: wb_result = 32'b0; // Default case for safety
          endcase
       end
    end

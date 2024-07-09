@@ -6,7 +6,7 @@ module riscv (
               );
 
    // control signals
-   wire                     pc_src;
+   // wire                     pc_src;
 
    /////// pipelining registers
    // IF/ID
@@ -25,12 +25,14 @@ module riscv (
    wire                      id_ex_jump_d;
    wire                      id_ex_branch_d;
    wire [3:0]                id_ex_alu_control_d;
+   wire [2:0]                id_ex_branch_control_d;
    wire                      id_ex_alu_src_d;
    wire [31:0]               id_ex_pc_plus_4; // forward
    wire [31:0]               id_ex_pc; // forward
 
    //ex mem
    wire                      ex_mem_zero_flag_e;
+   wire                      ex_mem_branch_flag_e;
    wire [31:0]               ex_mem_pc_target_e;
    wire [31:0]               ex_mem_alu_result_e;
    wire [31:0]               ex_mem_writedata_e;
@@ -39,6 +41,7 @@ module riscv (
    wire                      ex_mem_regwrite_e;
    wire [1:0]                ex_mem_result_src_e;
    wire                      ex_mem_memwrite_e;
+   wire                      ex_mem_pc_src_e;
 
 
    // mem wb
@@ -62,8 +65,8 @@ module riscv (
    IF IF_unit (
                .clk(clk),
                .reset(reset),
-               .pc_src(pc_src),
-               .pc_branch_dest(32'hA),
+               .pc_src(ex_mem_pc_src_e),
+               .pc_branch_dest(ex_mem_pc_target_e),
                // output start
                .pc(if_id_pc),
                .pc_plus_4(if_id_pc_plus_4),
@@ -91,6 +94,7 @@ module riscv (
                .jump_d(id_ex_jump_d),
                .branch_d(id_ex_branch_d),
                .alu_control_d(id_ex_alu_control_d),
+               .branch_control_d(id_ex_branch_control_d),
                .alu_src_d(id_ex_alu_src_d),
                .id_ex_pc_plus_4(id_ex_pc_plus_4),
                .id_ex_pc(id_ex_pc)
@@ -105,6 +109,7 @@ module riscv (
                .jump_e(id_ex_jump_d),
                .branch_e(id_ex_branch_d),
                .alu_control_e(id_ex_alu_control_d),
+               .branch_control_e(id_ex_branch_control_d),
                .alu_src_e(id_ex_alu_src_d),
                .rs1_data_e(id_ex_reg_a),
                .rs2_data_e(id_ex_reg_b),
@@ -114,6 +119,8 @@ module riscv (
                .immediate_e(id_ex_imm),
                // output start
                .zero_flag(ex_mem_zero_flag_e),
+               .branch_flag(ex_mem_branch_flag_e),
+               .pc_src_e(ex_mem_pc_src_e),
                .pc_target_e(ex_mem_pc_target_e),
                .alu_result(ex_mem_alu_result_e),
                .writedata(ex_mem_writedata_e),

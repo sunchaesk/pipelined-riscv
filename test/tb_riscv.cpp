@@ -27,17 +27,27 @@ void dut_riscv_load_instruction(Vriscv *dut) {
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00730393; // addi x7, x6, 7
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x005303b3; // add x7, x6, x5
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x405303b3; // sub x7, x6, x5
+    //
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00002383; // lw x7, 0(x0)
-    dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00402383; // lw x7, 4(x0)
+    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00402383; // lw x7, 4(x0)
+
+    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00702023; // sw x7, 0(x0)
+
+    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00702023; // sw x7, 0(x0)
+
+    dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x020003ef; // jal x7, 8
+
+    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x008003ef; // beq x7, x0, 8
+
 }
 
 void dut_riscv_load_register_file(Vriscv *dut) {
     // initial initialization
     for (int i = 0; i < 32; i++){
-        dut->riscv__DOT__ID_unit__DOT__reg_array[i] = i + 1;
+        dut->riscv__DOT__ID_unit__DOT__reg_array[i] = i + 2;
     }
 
-    dut->riscv__DOT__ID_unit__DOT__reg_array[0] = 0;
+    dut->riscv__DOT__ID_unit__DOT__reg_array[0] = 8;
 }
 
 void dut_riscv_load_memory(Vriscv *dut) {
@@ -57,6 +67,18 @@ void d_dut_riscv_print_loaded_instructions(Vriscv *dut, vluint64_t &sim_time) {
         }
     }
     std::cout << "=== DONE PRINTING LOADED INSTRUCTIONS ===" << std::endl;
+}
+
+void d_dut_riscv_print_memory(Vriscv *dut, vluint64_t &sim_time) {
+    std::cout << "=== PRINTING MEMORY CONTENT ===" << std::endl;
+    for (int i = 0; i < 32; i++){
+        uint32_t instr_mem_value = dut->riscv__DOT__MEM_unit__DOT__mem_array[i];
+        if (instr_mem_value != 0) {
+            std::cout << "instr_mem[" << i << "]: 0x"
+                      << std::hex << instr_mem_value << std::endl;
+        }
+    }
+    std::cout << "=== DONE PRINTING MEMORY CONTENT === " << std::endl;
 }
 
 // run the reset, load instruction, load register file
@@ -94,6 +116,9 @@ int main(int argc, char** argv, char** env) {
 
         sim_time++;
     }
+
+    // cleanup debug stuff
+    d_dut_riscv_print_memory(dut, sim_time);
 
     // Close VCD trace file
     m_trace->close();
