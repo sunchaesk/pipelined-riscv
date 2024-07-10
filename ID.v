@@ -8,6 +8,10 @@ module ID (
            input [31:0]      pc_plus_4,
            input [31:0]      writeback_data,
 
+           // forward
+           input             stall_d,
+           input             flush_d,
+
            output reg [31:0] immediate,
            output reg [31:0] rs1_data,
            output reg [31:0] rs2_data,
@@ -52,10 +56,10 @@ module ID (
    // fetch rs1_data and rs2_data
    integer                   i;
    always @(posedge clk or posedge reset) begin
-      if (reset) begin
-      //    for (i = 0; i < 32; i = i + 1) begin
-      //       reg_array[i] <= 32'b0;
-      //    end
+      if (reset || flush_d) begin // flush_d is synchronous with the clock cycle
+         //    for (i = 0; i < 32; i = i + 1) begin
+         //       reg_array[i] <= 32'b0;
+         //    end
          immediate <= 32'b0;
          regwrite_d <= 1'b0;
          memwrite_d <= 1'b0;
@@ -68,7 +72,7 @@ module ID (
          // foward
          id_ex_pc_plus_4 <= 32'b0;
          id_ex_pc <= 32'b0;
-      end else begin
+      end else if (!stall_d) begin
          rs1_data <= reg_array[rs1];
          rs2_data <= reg_array[rs2];
          rd_out <= instruction[11:7];
@@ -94,7 +98,9 @@ module ID (
             reg_array[i] <= 32'b0;
          end
       end else if (writeback_control) begin
-         reg_array[rd] <= writeback_data;
+         if (rd  != 5'b0) begin
+            reg_array[rd] <= writeback_data;
+         end
       end
    end
 

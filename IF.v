@@ -1,31 +1,32 @@
 module IF (
-    input clk,
-    input reset,
-    input pc_src,                // Control signal to select between PC + 4 and branch destination
-    input [31:0] pc_branch_dest, // Branch target address
-    output reg [31:0] pc,        // Program counter
-    output reg [31:0] pc_plus_4, // Program counter + 4
-    output reg [31:0] instruction // Current instruction
-);
+           input             clk,
+           input             reset,
+           input             pc_src, // Control signal to select between PC + 4 and branch destination
+           input             stall_f,
+           input [31:0]      pc_branch_dest, // Branch target address
+           output reg [31:0] pc, // Program counter
+           output reg [31:0] pc_plus_4, // Program counter + 4
+           output reg [31:0] instruction // Current instruction
+           );
 
-    reg [31:0] instr_mem [0:255]; // Instruction memory
-    reg [31:0] next_pc;           // Next program counter value
+   reg [31:0]                instr_mem [0:255]; // Instruction memory
+   reg [31:0]                next_pc;           // Next program counter value
 
 
-    // Update the current program counter and instruction
-    always @(posedge clk or posedge reset) begin
-        if (reset) begin
-            pc <= 0;
-            pc_plus_4 <= 4; // Initialize to 4 on reset
-            instruction <= instr_mem[0]; // Assuming the instruction memory starts from address 0
-            next_pc <= 4; // Initialize next_pc to 4 on reset
-        end else begin
-            pc <= next_pc;
-            instruction <= instr_mem[next_pc >> 2];
-            pc_plus_4 <= next_pc + 4; // Calculate the program counter + 4 based on the next PC
-            next_pc <= pc_src ? pc_branch_dest : (next_pc + 4);
-        end
-    end
+   // Update the current program counter and instruction
+   always @(posedge clk or posedge reset) begin
+      if (reset) begin
+         pc <= 0;
+         pc_plus_4 <= 4; // Initialize to 4 on reset
+         instruction <= instr_mem[0]; // Assuming the instruction memory starts from address 0
+         next_pc <= 4; // Initialize next_pc to 4 on reset
+      end else if (!stall_f) begin
+         pc <= next_pc;
+         instruction <= instr_mem[next_pc >> 2];
+         pc_plus_4 <= next_pc + 4; // Calculate the program counter + 4 based on the next PC
+         next_pc <= pc_src ? pc_branch_dest : (next_pc + 4);
+      end
+   end
 
 endmodule
 // module IF (

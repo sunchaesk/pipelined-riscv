@@ -19,11 +19,15 @@ module EX (
            input [31:0]      pc_plus_4_e,
            input [4:0]       rd_e,
            input [31:0]      immediate_e,
+           //hazard unit
+           input             flush_e,
+           input [1:0]       forward_operand_a_e,
+           input [1:0]       forward_operand_b_e,
            // output
-           output             zero_flag,
-           output             branch_flag,
-           output             pc_src_e,
-           output reg [31:0]     pc_target_e,
+           output            zero_flag,
+           output            branch_flag,
+           output            pc_src_e,
+           output reg [31:0] pc_target_e,
            output reg [31:0] alu_result,
            output reg [31:0] writedata,
            // forward

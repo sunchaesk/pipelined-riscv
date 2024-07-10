@@ -61,11 +61,20 @@ module riscv (
    wire [31:0]              alu_result;
    wire                     zero_flag;
 
+   // hazard unit
+   wire                     stall_f;
+   wire                     stall_d;
+   wire                     flush_d;
+   wire                     flush_e;
+   wire [1:0]               forward_operand_a_e;
+   wire [1:0]               forward_operand_b_e;
+
    // instantiate stages
    IF IF_unit (
                .clk(clk),
                .reset(reset),
                .pc_src(ex_mem_pc_src_e),
+               .stall_f(stall_f),
                .pc_branch_dest(ex_mem_pc_target_e),
                // output start
                .pc(if_id_pc),
@@ -76,12 +85,14 @@ module riscv (
    ID ID_unit (
                .clk(clk),
                .reset(reset),
-               .writeback_control(wb_regwrite), // TODO
+               .writeback_control(wb_regwrite),
                .rd(wb_rd),
                .instruction(if_id_instr),
                .pc(if_id_pc),
                .pc_plus_4(if_id_pc_plus_4),
-               .writeback_data(wb_result), // TODO
+               .writeback_data(wb_result),
+               .stall_d(stall_d),
+               .flush_d(flush_d),
                // output start
                .immediate(id_ex_imm),
                .rs1_data(id_ex_reg_a),
@@ -117,6 +128,9 @@ module riscv (
                .pc_plus_4_e(id_ex_pc_plus_4),
                .rd_e(id_ex_rd),
                .immediate_e(id_ex_imm),
+               .flush_e(flush_e),
+               .forward_operand_a_e(forward_operand_a_e),
+               .forward_operand_b_e(forward_operand_b_e),
                // output start
                .zero_flag(ex_mem_zero_flag_e),
                .branch_flag(ex_mem_branch_flag_e),
@@ -165,6 +179,29 @@ module riscv (
                .wb_result(wb_result)
                );
 
+
+
+   hazard hazard_unit (
+                       .rs1_d(),
+                       .rs2_d(),
+                       .pc_src_e(),
+                       .rs1_e(),
+                       .rs2_e(),
+                       .rd_e(),
+                       .result_src_e_0(),
+                       .memwrite_m(),
+                       .regwrite_w(),
+                       .rd_m(),
+                       .regwrite_m(),
+                       .rd_w(),
+                       //output
+                       .stall_f(stall_f),
+                       .stall_d(stall_d),
+                       .flush_d(flush_d),
+                       .flush_e(flush_e),
+                       .forward_operand_a_e(forward_operand_a_e),
+                       .forward_operand_b_e(forward_operand_b_e)
+                       );
 
 
    // // Connect outputs
