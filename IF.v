@@ -9,7 +9,8 @@ module IF (
            output reg [31:0] instruction // Current instruction
            );
 
-   reg [31:0]                instr_mem [0:255]; // Instruction memory
+   // reg [31:0]                instr_mem [0:255]; // Instruction memory
+   reg [31:0]                instr_mem [31:0]; // Instruction memory
    reg [31:0]                next_pc;           // Next program counter value
 
 

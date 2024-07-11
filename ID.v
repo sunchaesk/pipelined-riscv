@@ -25,10 +25,16 @@ module ID (
            output reg [3:0]  alu_control_d,
            output reg [2:0]  branch_control_d,
            output reg        alu_src_d,
-           // forward
+           // send to next pipeline
            output reg [31:0] id_ex_pc_plus_4,
-           output reg [31:0] id_ex_pc
+           output reg [31:0] id_ex_pc,
+           // forward/hazard unit
+           output [4:0] id_ex_rs1_d_wire,
+           output [4:0] id_ex_rs2_d_wire,
+           output reg [4:0] id_ex_rs1_d_reg,
+           output reg [4:0] id_ex_rs2_d_reg
            );
+
 
    reg [31:0]                reg_array [31:0]; // registers definition
 
@@ -44,6 +50,10 @@ module ID (
    wire [3:0]                alu_control_d_temp;
    wire [2:0]                branch_control_d_temp;
    wire [1:0]                result_src_d_temp;
+
+   // hazard
+   assign id_ex_rs1_d_wire = rs1;
+   assign id_ex_rs2_d_wire = rs2;
 
    // assigns
    assign rs1 = instruction[19:15];
@@ -72,6 +82,7 @@ module ID (
          // foward
          id_ex_pc_plus_4 <= 32'b0;
          id_ex_pc <= 32'b0;
+         // hazard
       end else if (!stall_d) begin
          rs1_data <= reg_array[rs1];
          rs2_data <= reg_array[rs2];

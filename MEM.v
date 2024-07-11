@@ -16,8 +16,13 @@ module MEM (
             output reg [1:0]  mem_wb_result_src,
             output reg [31:0] mem_wb_alu_result,
             output reg [31:0] mem_wb_pc_plus_4,
-            output reg [4:0]  mem_wb_rd
+            output reg [4:0]  mem_wb_rd,
+            output            mem_regwrite_m,
+            output [31:0]     mem_alu_result_m
             );
+
+   assign mem_regwrite_m = regwrite_m;
+   assign mem_alu_result_m = alu_result_m;
 
    reg [31:0]                 mem_array [0:31];
 
@@ -29,12 +34,14 @@ module MEM (
          mem_wb_pc_plus_4 <= 32'b0;
          mem_wb_rd <= 5'b0;
          readdata <= 32'b0;
+         // mem_regwrite_m <= 1'b0;
       end else begin
          mem_wb_regwrite <= regwrite_m;
          mem_wb_result_src <= result_src_m;
          mem_wb_alu_result <= alu_result_m;
          mem_wb_pc_plus_4 <= pc_plus_4_m;
          mem_wb_rd <= rd_m;
+         //mem_regwrite_m <= regwrite_m;
 
          //read memory
          readdata <= mem_array[alu_result_m >> 2]; // TODO do i >> 2?

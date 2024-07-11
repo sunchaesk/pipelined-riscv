@@ -10,52 +10,67 @@ module riscv (
 
    /////// pipelining registers
    // IF/ID
-   wire [31:0]               if_id_instr;
-   wire [31:0]               if_id_pc;
-   wire [31:0]               if_id_pc_plus_4;
+   wire [31:0]              if_id_instr;
+   wire [31:0]              if_id_pc;
+   wire [31:0]              if_id_pc_plus_4;
    //ID/EX
-   wire [4:0]                id_ex_rd;
-   wire [31:0]               id_ex_pc;
-   wire [31:0]               id_ex_reg_a; // rs1_data
-   wire [31:0]               id_ex_reg_b; // rs2_data
-   wire [31:0]               id_ex_imm;
-   wire                      id_ex_regwrite_d;
-   wire [1:0]                id_ex_result_src_d;
-   wire                      id_ex_memwrite_d;
-   wire                      id_ex_jump_d;
-   wire                      id_ex_branch_d;
-   wire [3:0]                id_ex_alu_control_d;
-   wire [2:0]                id_ex_branch_control_d;
-   wire                      id_ex_alu_src_d;
-   wire [31:0]               id_ex_pc_plus_4; // forward
-   wire [31:0]               id_ex_pc; // forward
+   wire [4:0]               id_ex_rd;
+   wire [31:0]              id_ex_pc;
+   wire [31:0]              id_ex_reg_a; // rs1_data
+   wire [31:0]              id_ex_reg_b; // rs2_data
+   wire [31:0]              id_ex_imm;
+   wire                     id_ex_regwrite_d;
+   wire [1:0]               id_ex_result_src_d;
+   wire                     id_ex_memwrite_d;
+   wire                     id_ex_jump_d;
+   wire                     id_ex_branch_d;
+   wire [3:0]               id_ex_alu_control_d;
+   wire [2:0]               id_ex_branch_control_d;
+   wire                     id_ex_alu_src_d;
+   wire [31:0]              id_ex_pc_plus_4; // forward
+   wire [31:0]              id_ex_pc; // forward
+   wire [4:0]               id_ex_rs1_d_wire; // hazard
+   wire [4:0]               id_ex_rs2_d_wire; // hazard
+   wire [4:0]               id_ex_rs1_d_reg; // hazard
+   wire [4:0]               id_ex_rs2_d_reg; // hazard
 
    //ex mem
-   wire                      ex_mem_zero_flag_e;
-   wire                      ex_mem_branch_flag_e;
-   wire [31:0]               ex_mem_pc_target_e;
-   wire [31:0]               ex_mem_alu_result_e;
-   wire [31:0]               ex_mem_writedata_e;
-   wire [31:0]               ex_mem_pc_plus_4_e;
-   wire [4:0]                ex_mem_rd_e;
-   wire                      ex_mem_regwrite_e;
-   wire [1:0]                ex_mem_result_src_e;
-   wire                      ex_mem_memwrite_e;
-   wire                      ex_mem_pc_src_e;
+   wire                     ex_mem_zero_flag_e;
+   wire                     ex_mem_branch_flag_e;
+   wire [31:0]              ex_mem_pc_target_e;
+   wire [31:0]              ex_mem_alu_result_e;
+   wire [31:0]              ex_mem_writedata_e;
+   wire [31:0]              ex_mem_pc_plus_4_e;
+   wire [4:0]               ex_mem_rd_e;
+   wire                     ex_mem_regwrite_e;
+   wire [1:0]               ex_mem_result_src_e;
+   wire                     ex_mem_memwrite_e;
+   wire                     ex_mem_pc_src_e;
+   wire [4:0]               ex_rs1_e; //hazard
+   wire [4:0]               ex_rs2_e; // hazard
+   wire [4:0]               ex_rd_e; //hazard
+   // wire [4:0]               ex_rs1_e_reg; //hazard
+   // wire [4:0]               ex_rs2_e_reg; // hazard
+   // wire [4:0]               ex_rd_e_reg; //hazard
 
 
-   // mem wb
-   wire [31:0]               mem_wb_readdata_w;
-   wire                      mem_wb_regwrite_w;
-   wire [1:0]                mem_wb_result_src_w;
-   wire [31:0]               mem_wb_alu_result_w;
-   wire [31:00]              mem_wb_pc_plus_4_w;
-   wire [4:0]                mem_wb_rd_w;
+
+
+   // mem wb NOTE: naming convention little off, postfix should be _m
+   wire [31:0]              mem_wb_readdata_w;
+   wire                     mem_wb_regwrite_w;
+   wire [1:0]               mem_wb_result_src_w;
+   wire [31:0]              mem_wb_alu_result_w;
+   wire [31:00]             mem_wb_pc_plus_4_w;
+   wire [4:0]               mem_wb_rd_w;
+   wire                     mem_regwrite_m;
+   wire [31:0]              mem_alu_result_m;
+
 
    // wb stuff
-   wire                      wb_regwrite;
-   wire [4:0]                wb_rd;
-   wire [31:0]               wb_result;
+   wire                     wb_regwrite;
+   wire [4:0]               wb_rd;
+   wire [31:0]              wb_result;
 
    //////// wire def
    wire [31:0]              alu_result;
@@ -108,7 +123,13 @@ module riscv (
                .branch_control_d(id_ex_branch_control_d),
                .alu_src_d(id_ex_alu_src_d),
                .id_ex_pc_plus_4(id_ex_pc_plus_4),
-               .id_ex_pc(id_ex_pc)
+               .id_ex_pc(id_ex_pc),
+               // forward
+               .id_ex_rs1_d_wire(id_ex_rs1_d_wire),
+               .id_ex_rs2_d_wire(id_ex_rs2_d_wire),
+
+               .id_ex_rs1_d_reg(id_ex_rs1_d_reg),
+               .id_ex_rs2_d_reg(id_ex_rs2_d_reg)
                );
 
    EX EX_unit (
@@ -126,6 +147,12 @@ module riscv (
                .rs2_data_e(id_ex_reg_b),
                .pc_e(id_ex_pc),
                .pc_plus_4_e(id_ex_pc_plus_4),
+               //hazard start input
+               .rs1_e(id_ex_rs1_d_reg),
+               .rs2_e(id_ex_rs2_d_reg),
+               .alu_result_m(mem_alu_result_m),
+               .result_w(wb_result),
+               // hazard end
                .rd_e(id_ex_rd),
                .immediate_e(id_ex_imm),
                .flush_e(flush_e),
@@ -142,7 +169,11 @@ module riscv (
                .ex_mem_rd(ex_mem_rd_e),
                .ex_mem_regwrite_e(ex_mem_regwrite_e),
                .ex_mem_result_src_e(ex_mem_result_src_e),
-               .ex_mem_memwrite_e(ex_mem_memwrite_e)
+               .ex_mem_memwrite_e(ex_mem_memwrite_e),
+               // hazard output
+               .ex_rs1_e(ex_rs1_e),
+               .ex_rs2_e(ex_rs2_e),
+               .ex_rd_e(ex_rd_e)
                );
 
    MEM MEM_unit (
@@ -161,7 +192,9 @@ module riscv (
                  .mem_wb_result_src(mem_wb_result_src_w),
                  .mem_wb_alu_result(mem_wb_alu_result_w),
                  .mem_wb_pc_plus_4(mem_wb_pc_plus_4_w),
-                 .mem_wb_rd(mem_wb_rd_w)
+                 .mem_wb_rd(mem_wb_rd_w),
+                 .mem_regwrite_m(mem_regwrite_m),
+                 .mem_alu_result_m(mem_alu_result_m)
                  );
 
    WB WB_unit (
@@ -182,18 +215,20 @@ module riscv (
 
 
    hazard hazard_unit (
-                       .rs1_d(),
-                       .rs2_d(),
-                       .pc_src_e(),
-                       .rs1_e(),
-                       .rs2_e(),
-                       .rd_e(),
-                       .result_src_e_0(),
-                       .memwrite_m(),
-                       .regwrite_w(),
-                       .rd_m(),
-                       .regwrite_m(),
-                       .rd_w(),
+                       .clk(clk),
+                       .reset(reset),
+                       .rs1_d(id_ex_rs1_d_wire),
+                       .rs2_d(id_ex_rs2_d_wire),
+                       .pc_src_e(ex_mem_pc_src_e),
+                       .rs1_e(ex_rs1_e),
+                       .rs2_e(ex_rs2_e),
+                       .rd_e(ex_rd_e),
+                       .result_src_e_0(id_ex_result_src_d[0]),
+                       .regwrite_w(wb_regwrite),
+                       .rd_m(ex_mem_rd_e),
+                       .rd_w(wb_rd),
+                       .regwrite_m(mem_regwrite_m),
+                       //.alu_result_m(mem_alu_result_m),
                        //output
                        .stall_f(stall_f),
                        .stall_d(stall_d),
@@ -205,7 +240,7 @@ module riscv (
 
 
    // // Connect outputs
-   // assign instr_out = if_id_instr;
+     // assign instr_out = if_id_instr;
    // assign pc_out = if_id_pc;
 
 endmodule

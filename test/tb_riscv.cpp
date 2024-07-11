@@ -35,7 +35,15 @@ void dut_riscv_load_instruction(Vriscv *dut) {
 
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00702023; // sw x7, 0(x0)
 
-    dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x020003ef; // jal x7, 8
+    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x000003ef; // jal x7, 32
+    dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x010003ef; // jal x7, 16
+    dut->riscv__DOT__IF_unit__DOT__instr_mem[1] = 0x003102b3; // add x5, x2, x3
+    dut->riscv__DOT__IF_unit__DOT__instr_mem[2] = 0x00a20293; // addi x5, x4,10
+    dut->riscv__DOT__IF_unit__DOT__instr_mem[3] = 0x00b20293; // addi x5, x4,11
+    dut->riscv__DOT__IF_unit__DOT__instr_mem[4] = 0x02000093; // addi x1, x0, 32
+    // dut->riscv__DOT__IF_unit__DOT__instr_mem[5] = 0x03000093; // addi x1, x0, 32
+    // dut->riscv__DOT__IF_unit__DOT__instr_mem[6] = 0x04000093; // addi x1, x0, 32
+    // dut->riscv__DOT__IF_unit__DOT__instr_mem[7] = 0x05000093; // addi x1, x0, 32
 
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x008003ef; // beq x7, x0, 8
 
@@ -47,7 +55,7 @@ void dut_riscv_load_register_file(Vriscv *dut) {
         dut->riscv__DOT__ID_unit__DOT__reg_array[i] = i + 2;
     }
 
-    dut->riscv__DOT__ID_unit__DOT__reg_array[0] = 8;
+    dut->riscv__DOT__ID_unit__DOT__reg_array[0] = 0; //zero register
 }
 
 void dut_riscv_load_memory(Vriscv *dut) {
@@ -59,7 +67,7 @@ void dut_riscv_load_memory(Vriscv *dut) {
 
 void d_dut_riscv_print_loaded_instructions(Vriscv *dut, vluint64_t &sim_time) {
     std::cout << "=== PRINTING LOADED INSTRUCTIONS ===" << std::endl;
-    for (int i = 0; i < 256; ++i) {
+    for (int i = 0; i < 32; ++i) {
         uint32_t instr_mem_value = dut->riscv__DOT__IF_unit__DOT__instr_mem[i];
         if (instr_mem_value != 0) {
             std::cout << "instr_mem[" << i << "]: 0x"
