@@ -7,7 +7,7 @@ module imm_gen (
 
    localparam                     OP_LW = 7'b0000011;
    localparam                     OP_SW = 7'b0100011;
-   localparam                     OP_R  = 7'b0110011;
+   // localparam                     OP_R  = 7'b0110011;
    localparam                     OP_B  = 7'b1100011;
    localparam                     OP_I  = 7'b0010011;
    localparam                     OP_J  = 7'b1101111;

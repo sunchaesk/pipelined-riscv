@@ -1,8 +1,8 @@
 module riscv (
               input         clk,
-              input         reset,
-              output [31:0] instr_out,
-              output [31:0] pc_out
+              input         reset
+              // output [31:0] instr_out,
+              // output [31:0] pc_out
               );
 
    // control signals
@@ -61,7 +61,7 @@ module riscv (
    wire                     mem_wb_regwrite_w;
    wire [1:0]               mem_wb_result_src_w;
    wire [31:0]              mem_wb_alu_result_w;
-   wire [31:00]             mem_wb_pc_plus_4_w;
+   wire [31:0]             mem_wb_pc_plus_4_w;
    wire [4:0]               mem_wb_rd_w;
    wire                     mem_regwrite_m;
    wire [31:0]              mem_alu_result_m;
@@ -151,7 +151,8 @@ module riscv (
                .rs1_e(id_ex_rs1_d_reg),
                .rs2_e(id_ex_rs2_d_reg),
                .alu_result_m(mem_alu_result_m),
-               .result_w(wb_result),
+               // .result_w(wb_result), // NOTE
+               .result_w(mem_wb_alu_result_w), // NOTE: trying it out
                // hazard end
                .rd_e(id_ex_rd),
                .immediate_e(id_ex_imm),
@@ -220,13 +221,14 @@ module riscv (
                        .rs1_d(id_ex_rs1_d_wire),
                        .rs2_d(id_ex_rs2_d_wire),
                        .pc_src_e(ex_mem_pc_src_e),
-                       .rs1_e(ex_rs1_e),
-                       .rs2_e(ex_rs2_e),
+                       .rs1_e(ex_rs1_e), // NOTE
+                       .rs2_e(ex_rs2_e), // NOTE
                        .rd_e(ex_rd_e),
                        .result_src_e_0(id_ex_result_src_d[0]),
-                       .regwrite_w(wb_regwrite),
+                       .regwrite_w(mem_wb_regwrite_w),
                        .rd_m(ex_mem_rd_e),
-                       .rd_w(wb_rd),
+                       // .rd_w(wb_rd),
+                       .rd_w(mem_wb_rd_w),
                        .regwrite_m(mem_regwrite_m),
                        //.alu_result_m(mem_alu_result_m),
                        //output

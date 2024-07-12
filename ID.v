@@ -83,6 +83,8 @@ module ID (
          id_ex_pc_plus_4 <= 32'b0;
          id_ex_pc <= 32'b0;
          // hazard
+         id_ex_rs1_d_reg <= 5'b0;
+         id_ex_rs2_d_reg <= 5'b0;
       end else if (!stall_d) begin
          rs1_data <= reg_array[rs1];
          rs2_data <= reg_array[rs2];
@@ -99,6 +101,9 @@ module ID (
          // forward
          id_ex_pc_plus_4 <= pc_plus_4;
          id_ex_pc <= pc;
+         // hazard
+         id_ex_rs1_d_reg <= rs1;
+         id_ex_rs2_d_reg <= rs2;
       end
    end
 
