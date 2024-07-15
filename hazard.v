@@ -13,18 +13,20 @@ module hazard (
                input [4:0]       rd_w,
                input             clk,
                input             reset,
-               output wire       stall_f,
-               output wire       stall_d,
+               output reg       stall_f,
+               output reg       stall_d,
+               output reg       flush_e,
+               // output wire       stall_f,
+               // output wire       stall_d,
+               // output wire       flush_e,
                output reg        flush_d,
-               output wire       flush_e,
                output wire [1:0] forward_operand_a_e,
                output wire [1:0] forward_operand_b_e
                );
 
-   // reg                          lw_stall;
-   wire                          lw_stall;
+   reg                          lw_stall;
+   // wire                          lw_stall;
 
-   assign lw_stall = (result_src_e_0 & ((rs1_d == rd_e) | (rs2_d == rd_e)));
 
    // Combinational logic for forwarding
    assign forward_operand_a_e = ((rs1_e == rd_m) & regwrite_m & (rs1_e != 5'b0)) ? 2'b10 :
@@ -33,26 +35,27 @@ module hazard (
    assign forward_operand_b_e = ((rs2_e == rd_m) & regwrite_m & (rs2_e != 5'b0)) ? 2'b10 :
                                 ((rs2_e == rd_w) & regwrite_w & (rs2_e != 5'b0)) ? 2'b01 : 2'b00;
 
-   assign stall_f = lw_stall;
-   assign stall_d = lw_stall;
-   assign flush_e = lw_stall | pc_src_e;
+   // assign lw_stall = (result_src_e_0 & ((rs1_d == rd_e) | (rs2_d == rd_e)));
+   // assign stall_f = lw_stall;
+   // assign stall_d = lw_stall;
+   // assign flush_e = lw_stall | pc_src_e;
 
    always @(posedge clk or posedge reset) begin
       if (reset) begin
-         //lw_stall <= 1'b0;
-         // stall_f <= 1'b0;
-         // stall_d <= 1'b0;
+         lw_stall <= 1'b0;
+         stall_f <= 1'b0;
+         stall_d <= 1'b0;
          flush_d <= 1'b0;
-         // flush_e <= 1'b0;
+         flush_e <= 1'b0;
       end else begin
          // calculate lw_stall
-         // lw_stall <= result_src_e_0 & ((rs1_d == rd_e) | (rs2_d == rd_e));
+         lw_stall <= result_src_e_0 & ((rs1_d == rd_e) | (rs2_d == rd_e));
 
          // assign stall and flush signals
-         // stall_f <= lw_stall;
-         // stall_d <= lw_stall;
+         stall_f <= lw_stall;
+         stall_d <= lw_stall;
          flush_d <= pc_src_e;
-         // flush_e <= lw_stall | pc_src_e;
+         flush_e <= lw_stall | pc_src_e;
       end
    end
 endmodule

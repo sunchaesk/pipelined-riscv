@@ -218,8 +218,8 @@ module riscv (
    hazard hazard_unit (
                        .clk(clk),
                        .reset(reset),
-                       .rs1_d(id_ex_rs1_d_wire),
-                       .rs2_d(id_ex_rs2_d_wire),
+                       .rs1_d(id_ex_rs1_d_reg),
+                       .rs2_d(id_ex_rs2_d_reg),
                        .pc_src_e(ex_mem_pc_src_e),
                        .rs1_e(ex_rs1_e), // NOTE
                        .rs2_e(ex_rs2_e), // NOTE

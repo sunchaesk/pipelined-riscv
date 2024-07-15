@@ -60,7 +60,7 @@ void dut_riscv_load_instruction(Vriscv *dut) {
 
     // lw test (stalling test)
     dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00002283; // lw x5, 0(x0)
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[1] = 0x00028333; // add x6, x5, x0
+    dut->riscv__DOT__IF_unit__DOT__instr_mem[1] = 0x00028333; // add x6, x5, x0
 
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x008003ef; // beq x7, x0, 8
 
