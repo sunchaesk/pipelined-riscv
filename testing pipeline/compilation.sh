@@ -34,3 +34,11 @@ for section in "${OUTPUT_SECTIONS[@]}"; do
 	process="perl process_hex.pl $hex_file $text_file"
 	eval "$process"
 done
+
+# compile the c++ program
+compile_test="g++ tb_riscv.cpp -o tb_riscv"
+eval "$compile_test"
+
+# run the c++ program with files
+run_test="./tb_riscv $EXECUTABLE.text.txt $EXECUTABLE.data.txt"
+eval "$run_test"
