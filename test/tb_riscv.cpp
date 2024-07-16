@@ -55,8 +55,8 @@ void dut_riscv_load_instruction(Vriscv *dut) {
     // forwarding test
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x002102b3; // add x5, x2, x2
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[1] = 0x00000533; // add x10, x0, x0
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[2] = 0x00428333; // add x6, x5, x4
-    // expected output: x5=8, x6=8+6=14 / 7 + 6 = 13
+    // dut->riscv__DOT__IF_unit__DOT__instr_mem[1] = 0x00428333; // add x6, x5, x4
+    // expected output: x5=8, x6=8+6=14(D) / 7 + 6 = 13 (E)
 
     // lw test (stalling test)
     dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00002283; // lw x5, 0(x0)
@@ -72,12 +72,12 @@ void dut_riscv_load_register_file(Vriscv *dut) {
         dut->riscv__DOT__ID_unit__DOT__reg_array[i] = i + 2;
     }
 
-    dut->riscv__DOT__ID_unit__DOT__reg_array[0] = 0; //zero register
+    dut->riscv__DOT__ID_unit__DOT__reg_array[0] = 4; //zero register
 }
 
 void dut_riscv_load_memory(Vriscv *dut) {
     dut->riscv__DOT__MEM_unit__DOT__mem_array[0] = 0x00000004;
-    dut->riscv__DOT__MEM_unit__DOT__mem_array[1] = 0x00000008;
+    dut->riscv__DOT__MEM_unit__DOT__mem_array[1] = 0x0000000C;
 
 }
 

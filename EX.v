@@ -122,7 +122,7 @@ module EX (
          ex_mem_result_src_e <= result_src_e;
          ex_mem_memwrite_e <= memwrite_e;
          alu_result <= alu_result_temp;
-         writedata <= rs2_data_e;
+         writedata <= hazard_b;
          //hazard
          // ex_rs1_e_reg <= rs1_e;
          // ex_rs2_e_reg <= rs2_e;

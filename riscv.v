@@ -21,6 +21,7 @@ module riscv (
    wire [31:0]              id_ex_imm;
    wire                     id_ex_regwrite_d;
    wire [1:0]               id_ex_result_src_d;
+   wire [1:0]               id_ex_result_src_d_wire;
    wire                     id_ex_memwrite_d;
    wire                     id_ex_jump_d;
    wire                     id_ex_branch_d;
@@ -65,7 +66,7 @@ module riscv (
    wire [4:0]               mem_wb_rd_w;
    wire                     mem_regwrite_m;
    wire [31:0]              mem_alu_result_m;
-
+   wire [31:0]              mem_wb_result;
 
    // wb stuff
    wire                     wb_regwrite;
@@ -116,6 +117,7 @@ module riscv (
                // output control signals
                .regwrite_d(id_ex_regwrite_d),
                .result_src_d(id_ex_result_src_d),
+               .result_src_d_wire(id_ex_result_src_d_wire),
                .memwrite_d(id_ex_memwrite_d),
                .jump_d(id_ex_jump_d),
                .branch_d(id_ex_branch_d),
@@ -152,7 +154,8 @@ module riscv (
                .rs2_e(id_ex_rs2_d_reg),
                .alu_result_m(mem_alu_result_m),
                // .result_w(wb_result), // NOTE
-               .result_w(mem_wb_alu_result_w), // NOTE: trying it out
+               // .result_w(mem_wb_alu_result_w), // NOTE: trying it out
+               .result_w(mem_wb_result), // TODO
                // hazard end
                .rd_e(id_ex_rd),
                .immediate_e(id_ex_imm),
@@ -210,7 +213,8 @@ module riscv (
                // output
                .wb_regwrite(wb_regwrite),
                .wb_rd(wb_rd),
-               .wb_result(wb_result)
+               .wb_result(wb_result),
+               .mem_wb_result(mem_wb_result)
                );
 
 
@@ -218,8 +222,8 @@ module riscv (
    hazard hazard_unit (
                        .clk(clk),
                        .reset(reset),
-                       .rs1_d(id_ex_rs1_d_reg),
-                       .rs2_d(id_ex_rs2_d_reg),
+                       .rs1_d(id_ex_rs1_d_wire),
+                       .rs2_d(id_ex_rs2_d_wire),
                        .pc_src_e(ex_mem_pc_src_e),
                        .rs1_e(ex_rs1_e), // NOTE
                        .rs2_e(ex_rs2_e), // NOTE

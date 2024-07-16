@@ -19,6 +19,7 @@ module ID (
            // control unit outputs
            output reg        regwrite_d,
            output reg [1:0]  result_src_d,
+           output wire [1:0] result_src_d_wire,
            output reg        memwrite_d,
            output reg        jump_d,
            output reg        branch_d,
@@ -29,10 +30,10 @@ module ID (
            output reg [31:0] id_ex_pc_plus_4,
            output reg [31:0] id_ex_pc,
            // forward/hazard unit
-           output [4:0] id_ex_rs1_d_wire,
-           output [4:0] id_ex_rs2_d_wire,
-           output reg [4:0] id_ex_rs1_d_reg,
-           output reg [4:0] id_ex_rs2_d_reg
+           output [4:0]      id_ex_rs1_d_wire,
+           output [4:0]      id_ex_rs2_d_wire,
+           output reg [4:0]  id_ex_rs1_d_reg,
+           output reg [4:0]  id_ex_rs2_d_reg
            );
 
 
@@ -50,6 +51,8 @@ module ID (
    wire [3:0]                alu_control_d_temp;
    wire [2:0]                branch_control_d_temp;
    wire [1:0]                result_src_d_temp;
+
+   assign result_src_d_wire = result_src_d_temp;
 
    // hazard
    assign id_ex_rs1_d_wire = rs1;
