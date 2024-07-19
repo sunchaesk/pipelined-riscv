@@ -17,7 +17,7 @@ IFS='.' read -ra file_name_list <<< "$INPUT_FILE"
 
 # execute the compile command
 EXECUTABLE="${file_name_list[0]}"
-compile="riscv32-unknown-elf-gcc $INPUT_FILE -o $EXECUTABLE -nostdlib"
+compile="riscv32-unknown-elf-gcc $INPUT_FILE -o $EXECUTABLE -nostdlib -T linker.ld"
 eval "$compile"
 
 # create binary file for different sections and convert them to readable text files
