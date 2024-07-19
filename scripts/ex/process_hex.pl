@@ -21,14 +21,19 @@ my @lines = split /\n/, $hex_content;
 
 foreach my $line (@lines) {
     next if $line =~ /^\s*$/;  # Skip empty lines
-    print $line;
-    print "\n";
+    
     # Remove leading hex address and trailing |...| sections
     $line =~ s/^\s*\w+\s+//; # Remove leading hex address
     $line =~ s/\s*\|.*$//;   # Remove trailing |...| section
 
     # Remove spaces and format to 8-digit groups
     my @line_list = split /\s+/, $line;
+ 
+    # break if only the hex address is left
+    if (scalar @line_list eq 1) {
+        last;
+    }
+
     my @line_list_1 = reverse @line_list[0..3];
     my @line_list_2 = reverse @line_list[4..7];
     my @line_list_3 = reverse @line_list[8..11];
