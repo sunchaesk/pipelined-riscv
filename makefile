@@ -1,6 +1,6 @@
 MODULE=riscv
 
-VSRCS:=$(wildcard *.v)
+VSRCS:=$(wildcard ./rtl/*.v)
 
 .PHONY:sim
 sim: waveform.vcd
@@ -27,7 +27,7 @@ waveform.vcd: ./obj_dir/V$(MODULE)
 	@echo "### BUILDING SIM ###"
 	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
 
-.stamp.verilate: $(MODULE).v ./test/tb_$(MODULE).cpp
+.stamp.verilate: ./rtl/$(MODULE).v ./test/tb_$(MODULE).cpp
 	@echo
 	@echo "### VERILATING ###"
 	verilator --trace -cc $(VSRCS) --exe ./test/tb_$(MODULE).cpp --top-module riscv

@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <string.h>
+#include <string>
 #include <iostream>
 #include <fstream>
 #include <verilated.h>
@@ -25,17 +25,17 @@ void dut_reset(Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time) {
     dut->reset = 0;
 }
 
-void dut_riscv_load_instruction(Vriscv *dut, char* instrFile) {
+void dut_riscv_load_instruction(Vriscv *dut) {
 
-    ifstream instructionFile(instrFile);
-    string instruction;
-    int i = 0;
-    while (getline(instructionFile, instruction)) {
-        dut->riscv__DOT__IF_unit__DOT__instr_mem[i] = std::stoi(hexString, nullptr, 16);
-        i++;
-    }
+    // std::ifstream instructionFile(instrFile);
+    // std::string instruction;
+    // int i = 0;
+    // while (getline(instructionFile, instruction)) {
+    //     dut->riscv__DOT__IF_unit__DOT__instr_mem[i] = std::stoi(hexString, nullptr, 16);
+    //     i++;
+    // }
 
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00730393; // addi x7, x6, 7
+    dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00730393; // addi x7, x6, 7
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x005303b3; // add x7, x6, x5
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x405303b3; // sub x7, x6, x5
     //
@@ -83,19 +83,18 @@ void dut_riscv_load_register_file(Vriscv *dut) {
         dut->riscv__DOT__ID_unit__DOT__reg_array[i] = i + 2;
     }
 
-    dut->riscv__DOT__ID_unit__DOT__reg_array[0] = 4; //zero register
+    dut->riscv__DOT__ID_unit__DOT__reg_array[0] = 0; //zero register
 }
 
-void dut_riscv_load_memory(Vriscv *dut, char* memFile) {
-    ifstream instructionFile(memFile);
-    string instruction;
-    int i = 0;
-    while (getline(instructionFile, instruction)) {
-        dut->riscv__DOT__MEM_unit__DOT__mem_array[i] = std::stoi(hexString, nullptr, 16);
-        i++;
-    }
-}
-
+// void dut_riscv_load_memory(Vriscv *dut, std::string memFile) {
+//     std::ifstream instructionFile(memFile);
+//     std::string instruction;
+//     int i = 0;
+//     while (getline(instructionFile, instruction)) {
+//         dut->riscv__DOT__MEM_unit__DOT__mem_array[i] = std::stoi(hexString, nullptr, 16);
+//         i++;
+//     }
+// }
 
 void dut_riscv_load_memory(Vriscv *dut) {
     dut->riscv__DOT__MEM_unit__DOT__mem_array[0] = 0x00000004;
@@ -129,9 +128,10 @@ void d_dut_riscv_print_memory(Vriscv *dut, vluint64_t &sim_time) {
 }
 
 // run the reset, load instruction, load register file
-void dut_test_init (Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time, char* instrFile, char* memFile){
-    dut_riscv_load_instruction(dut, instrFile);
-    dut_riscv_load_memory(dut memFile);
+// void dut_test_init (Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time, std::string instrFile, std::string memFile){
+void dut_test_init (Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time){
+    dut_riscv_load_instruction(dut);
+    dut_riscv_load_memory(dut);
     d_dut_riscv_print_loaded_instructions(dut, sim_time);
     dut_reset(dut, m_trace, sim_time);
     dut_riscv_load_register_file(dut); // load reg after reset because reset deletes reg
@@ -141,8 +141,9 @@ int main(int argc, char** argv, char** env) {
     std::cout << "Starting simulation\n";
 
     // load instruction file and memory file names from options
-std:string instrFile = argv[0];
-std:string memFile = argv[1];
+
+    // std::string instrFile = argv[1];
+    // std::string memFile = argv[2];
 
     // Instantiate the DUT
     Vriscv *dut = new Vriscv;
@@ -154,7 +155,8 @@ std:string memFile = argv[1];
     m_trace->open("waveform.vcd");
 
     // Reset the DUT
-    dut_test_init(dut, m_trace, sim_time, instrFile, memFile);
+    // dut_test_init(dut, m_trace, sim_time, instrFile, memFile);
+    dut_test_init(dut, m_trace, sim_time); //
 
     // Simulation loop
     while (sim_time < MAX_SIM_TIME) {
