@@ -32,21 +32,7 @@ void dut_riscv_load_instruction(Vriscv *dut, const char* instrFile) {
     std::string instruction;
     int i = 0;
 
-    while (std::getline(instructionFile, instruction)) {
-        // Skip empty lines
-        if (instruction.empty()) {
-            continue;
-        }
-
-        try {
-            int out = std::stoi(instruction, nullptr, 16);
-            dut->riscv__DOT__IF_unit__DOT__instr_mem[i] = out;
-            i++;_IF_unit__DOT__instr_mem[0] = 0x005303b3; // add x7, x6, x5
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x405303b3; // sub x7, x6, x5
-    //
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00002383; // lw x7, 0(x0)
-    // dut->riscv__DOT_
-    while (std::getline(instructionFile, instructionTwo)) {
+    while (std::getline(instrFile, instruction)) {
         // Skip empty lines
         if (instruction.empty()) {
             continue;
