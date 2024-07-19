@@ -25,82 +25,42 @@ void dut_reset(Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time) {
     dut->reset = 0;
 }
 
-void dut_riscv_load_instruction(Vriscv *dut, char* instrFile) {
+void dut_riscv_load_instruction(Vriscv *dut, const char* instrFile) {
 
-    ifstream instructionFile(instrFile);
-    string instruction;
+    std::ifstream instructionFile(instrFile); // open read file
+
+    std::string instruction;
     int i = 0;
-    while (getline(instructionFile, instruction)) {
-        dut->riscv__DOT__IF_unit__DOT__instr_mem[i] = std::stoi(hexString, nullptr, 16);
-        i++;
-    }
 
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00730393; // addi x7, x6, 7
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x005303b3; // add x7, x6, x5
+    while (std::getline(instructionFile, instruction)) {
+        // Skip empty lines
+        if (instruction.empty()) {
+            continue;
+        }
+
+        try {
+            int out = std::stoi(instruction, nullptr, 16);
+            dut->riscv__DOT__IF_unit__DOT__instr_mem[i] = out;
+            i++;_IF_unit__DOT__instr_mem[0] = 0x005303b3; // add x7, x6, x5
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x405303b3; // sub x7, x6, x5
     //
     // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00002383; // lw x7, 0(x0)
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00402383; // lw x7, 4(x0)
+    // dut->riscv__DOT_
+    while (std::getline(instructionFile, instructionTwo)) {
+        // Skip empty lines
+        if (instruction.empty()) {
+            continue;
+        }
 
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00702023; // sw x7, 0(x0)
-
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00702023; // sw x7, 0(x0)
-
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x000003ef; // jal x7, 32
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x010003ef; // jal x7, 16
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[1] = 0x003102b3; // add x5, x2, x3
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[2] = 0x00a20293; // addi x5, x4,10
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[3] = 0x00b20293; // addi x5, x4,11
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[4] = 0x02000093; // addi x1, x0, 32
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[5] = 0x03000093; // addi x1, x0, 32
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[6] = 0x04000093; // addi x1, x0, 32
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[7] = 0x05000093; // addi x1, x0, 32
-
-    ///// testing branch instr
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00310863; // beq x2, x3, 16
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[1] = 0x003102b3; // add x5, x2, x3
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[2] = 0x00a20293; // addi x5, x4,10
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[3] = 0x00b20293; // addi x5, x4,11
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[4] = 0x02000093; // addi x1, x0, 32
-
-    // forwarding test
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x002102b3; // add x5, x2, x2
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[1] = 0x00000533; // add x10, x0, x0
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[1] = 0x00428333; // add x6, x5, x4
-    // expected output: x5=8, x6=8+6=14(E) / 7 + 6 = 13 (D)
-
-    // lw test (stalling test)
-    dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x00002283; // lw x5, 0(x0)
-    dut->riscv__DOT__IF_unit__DOT__instr_mem[1] = 0x00028333; // add x6, x5, x0
-
-    // dut->riscv__DOT__IF_unit__DOT__instr_mem[0] = 0x008003ef; // beq x7, x0, 8
-
-}
-
-void dut_riscv_load_register_file(Vriscv *dut) {
-    // initial initialization
-    for (int i = 0; i < 32; i++){
-        dut->riscv__DOT__ID_unit__DOT__reg_array[i] = i + 2;
+        try {
+            int out = std::stoi(instruction, nullptr, 16);
+            dut->riscv__DOT__MEM_unit__DOT__mem_array[i] = out;
+            i++;
+        } catch (const std::invalid_argument& e) {
+            // not hex so probably empty line
+            break;
+        }
     }
-
-    dut->riscv__DOT__ID_unit__DOT__reg_array[0] = 4; //zero register
-}
-
-<<<<<<< HEAD:testing pipeline/tb_riscv.cpp
-void dut_riscv_load_memory(Vriscv *dut, char* memFile) {
-    ifstream instructionFile(memFile);
-    string instruction;
-    int i = 0;
-    while (getline(instructionFile, instruction)) {
-        dut->riscv__DOT__MEM_unit__DOT__mem_array[i] = std::stoi(hexString, nullptr, 16);
-        i++;
-    }
-=======
-void dut_riscv_load_memory(Vriscv *dut) {
-    dut->riscv__DOT__MEM_unit__DOT__mem_array[0] = 0x00000004;
-    dut->riscv__DOT__MEM_unit__DOT__mem_array[1] = 0x0000000C;
-
->>>>>>> ccc39e71fc36d41644034a4de248e2c501d4166a:test/tb_riscv.cpp
 }
 
 
@@ -129,9 +89,9 @@ void d_dut_riscv_print_memory(Vriscv *dut, vluint64_t &sim_time) {
 }
 
 // run the reset, load instruction, load register file
-void dut_test_init (Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time, char* instrFile, char* memFile){
+void dut_test_init (Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time, const char* instrFile, const char* memFile, const char* shortMemFile){
     dut_riscv_load_instruction(dut, instrFile);
-    dut_riscv_load_memory(dut memFile);
+    dut_riscv_load_memory(dut, memFile, shortMemFile);
     d_dut_riscv_print_loaded_instructions(dut, sim_time);
     dut_reset(dut, m_trace, sim_time);
     dut_riscv_load_register_file(dut); // load reg after reset because reset deletes reg
@@ -141,8 +101,9 @@ int main(int argc, char** argv, char** env) {
     std::cout << "Starting simulation\n";
 
     // load instruction file and memory file names from options
-    std:string instrFile = argv[0];
-    std:string memFile = argv[1];
+    std::string instrFile = argv[1];
+    std::string memFile = argv[2];
+    std::string shortMemFile = argv[3];
 
     // Instantiate the DUT
     Vriscv *dut = new Vriscv;
@@ -154,7 +115,7 @@ int main(int argc, char** argv, char** env) {
     m_trace->open("waveform.vcd");
 
     // Reset the DUT
-    dut_test_init(dut, m_trace, sim_time, instrFile, memFile);
+    dut_test_init(dut, m_trace, sim_time, instrFile, memFile, shortMemFile);
 
     // Simulation loop
     while (sim_time < MAX_SIM_TIME) {
