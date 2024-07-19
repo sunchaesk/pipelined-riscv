@@ -2,6 +2,7 @@
 #include <string>
 #include <iostream>
 #include <fstream>
+#include <string>
 #include <verilated.h>
 #include <verilated_vcd_c.h>
 #include "Vriscv.h"
@@ -10,6 +11,9 @@
 #define MAX_SIM_TIME 20
 
 vluint64_t sim_time = 0;
+
+// file read stuff
+
 
 void dut_reset(Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time) {
     // Reset the DUT
@@ -23,6 +27,29 @@ void dut_reset(Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time) {
     m_trace->dump(sim_time);
     sim_time++;
     dut->reset = 0;
+}
+
+void dut_riscv_load_instruction_from_file(Vriscv *dut, std::string instrFileName) {
+    std::ifstream instructionFile(instrFileName);
+    std::string instruction;
+    int i = 0;
+
+    while (std::getline(instructionFile, instruction)){
+        std::cout << instrFileName << std::endl;
+        std::cout << instruction << std::endl;
+        // skip empty lines
+        if (instruction.empty()) {
+            continue;
+        }
+        try {
+            int instr_read = std::stoi(instruction, nullptr, 16);
+            dut->riscv__DOT__IF_unit__DOT__instr_mem[i] = instr_read;
+            std::cout << instr_read << std::endl;
+            i++;
+        } catch (const std::invalid_argument& e) {
+            break;
+        }
+    }
 }
 
 void dut_riscv_load_instruction(Vriscv *dut) {
@@ -86,15 +113,26 @@ void dut_riscv_load_register_file(Vriscv *dut) {
     dut->riscv__DOT__ID_unit__DOT__reg_array[0] = 0; //zero register
 }
 
-// void dut_riscv_load_memory(Vriscv *dut, std::string memFile) {
-//     std::ifstream instructionFile(memFile);
-//     std::string instruction;
-//     int i = 0;
-//     while (getline(instructionFile, instruction)) {
-//         dut->riscv__DOT__MEM_unit__DOT__mem_array[i] = std::stoi(hexString, nullptr, 16);
-//         i++;
-//     }
-// }
+void dut_riscv_load_memory_from_file(Vriscv *dut, std::string memFileName) {
+    std::ifstream memoryFile(memFileName);
+    std::string memory_value;
+    int i = 0;
+
+    while (std::getline(memoryFile, memory_value)){
+        // skip empty lines
+        if (memory_value.empty()) {
+            continue;
+        }
+        try {
+            int mem_read = std::stoi(memory_value, nullptr, 16);
+            dut->riscv__DOT__MEM_unit__DOT__mem_array[i] = mem_read;
+            std::cout << mem_read << std::endl;
+            i++;
+        } catch (const std::invalid_argument& e) {
+            break;
+        }
+    }
+}
 
 void dut_riscv_load_memory(Vriscv *dut) {
     dut->riscv__DOT__MEM_unit__DOT__mem_array[0] = 0x00000004;
@@ -103,6 +141,9 @@ void dut_riscv_load_memory(Vriscv *dut) {
 }
 
 
+////////////////////////////////////////////////////
+// debug utility functions
+////////////////////////////////////////////////////
 void d_dut_riscv_print_loaded_instructions(Vriscv *dut, vluint64_t &sim_time) {
     std::cout << "=== PRINTING LOADED INSTRUCTIONS ===" << std::endl;
     for (int i = 0; i < 32; ++i) {
@@ -133,8 +174,18 @@ void dut_test_init (Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time){
     dut_riscv_load_instruction(dut);
     dut_riscv_load_memory(dut);
     d_dut_riscv_print_loaded_instructions(dut, sim_time);
+    d_dut_riscv_print_memory(dut, sim_time);
     dut_reset(dut, m_trace, sim_time);
     dut_riscv_load_register_file(dut); // load reg after reset because reset deletes reg
+}
+
+void dut_test_init_from_file (Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time, std::string memFileName, std::string instrFileName){
+    dut_riscv_load_instruction_from_file(dut, instrFileName);
+    dut_riscv_load_memory_from_file(dut, memFileName);
+    d_dut_riscv_print_loaded_instructions(dut, sim_time);
+    d_dut_riscv_print_memory(dut, sim_time);
+    dut_reset(dut, m_trace, sim_time);
+    dut_riscv_load_register_file(dut);
 }
 
 int main(int argc, char** argv, char** env) {
@@ -144,6 +195,8 @@ int main(int argc, char** argv, char** env) {
 
     // std::string instrFile = argv[1];
     // std::string memFile = argv[2];
+    std::string instrFileName = "./test/instr.txt";
+    std::string memFileName = "./test/mem.txt";
 
     // Instantiate the DUT
     Vriscv *dut = new Vriscv;
@@ -155,8 +208,9 @@ int main(int argc, char** argv, char** env) {
     m_trace->open("waveform.vcd");
 
     // Reset the DUT
-    // dut_test_init(dut, m_trace, sim_time, instrFile, memFile);
-    dut_test_init(dut, m_trace, sim_time); //
+    // dut_test_init(dut, m_trace, sim_time, instrFile, memFile); DEPRECATED
+    // dut_test_init(dut, m_trace, sim_time); //
+    dut_test_init_from_file(dut, m_trace, sim_time, memFileName, instrFileName);
 
     // Simulation loop
     while (sim_time < MAX_SIM_TIME) {
