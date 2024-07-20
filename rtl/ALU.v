@@ -19,6 +19,7 @@ module ALU (
         4'b1101: alu_result = in_a >>> in_b[4:0]; // SRA
         4'b0110: alu_result = in_a | in_b; // OR
         4'b0111: alu_result = in_a & in_b; // AND
+        //
         4'b1111: alu_result = {in_b[19:0], 12'b0}; // LUI
         4'b1100: alu_result = in_a + ({in_b[19:0], 12'b0}); // AUIPC
         default: alu_result = 32'b0; // if the ALU is not being used
