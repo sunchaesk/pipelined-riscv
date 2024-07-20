@@ -40,7 +40,7 @@ void dut_riscv_load_instruction(Vriscv *dut, const char* instrFile) {
 
         try {
             int out = std::stoi(instruction, nullptr, 16);
-            dut->riscv__DOT__MEM_unit__DOT__mem_array[i] = out;
+            dut->riscv__DOT__IF_unit__DOT__instr_mem[i] = out;
             i++;
         } catch (const std::invalid_argument& e) {
             // not hex so probably empty line
@@ -49,6 +49,28 @@ void dut_riscv_load_instruction(Vriscv *dut, const char* instrFile) {
     }
 }
 
+oid dut_riscv_load_memory(Vriscv *dut, char* memFile) {
+    std::ifstream memoryFile(memFile); // open read file
+
+    std::string memory;
+    int i = 524288; // hex 0x00080000, as specified in the linker.ld
+
+    while (std::getline(memoryFile, memory)) {
+        // Skip empty lines
+        if (instruction.empty()) {
+            continue;
+        }
+
+        try {
+            int out = std::stoi(memory, nullptr, 16);
+            dut->riscv__DOT__MEM_unit__DOT__mem_array[i] = out;
+            i++;
+        } catch (const std::invalid_argument& e) {
+            // not hex so probinstructionably empty line
+            break;
+        }
+    }
+}
 
 void d_dut_riscv_print_loaded_instructions(Vriscv *dut, vluint64_t &sim_time) {
     std::cout << "=== PRINTING LOADED INSTRUCTIONS ===" << std::endl;
@@ -75,9 +97,9 @@ void d_dut_riscv_print_memory(Vriscv *dut, vluint64_t &sim_time) {
 }
 
 // run the reset, load instruction, load register file
-void dut_test_init (Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time, const char* instrFile, const char* memFile, const char* shortMemFile){
+void dut_test_init (Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time, const char* instrFile, const char* memFile){
     dut_riscv_load_instruction(dut, instrFile);
-    dut_riscv_load_memory(dut, memFile, shortMemFile);
+    dut_riscv_load_memory(dut, memFile);
     d_dut_riscv_print_loaded_instructions(dut, sim_time);
     dut_reset(dut, m_trace, sim_time);
     dut_riscv_load_register_file(dut); // load reg after reset because reset deletes reg
@@ -89,7 +111,6 @@ int main(int argc, char** argv, char** env) {
     // load instruction file and memory file names from options
     std::string instrFile = argv[1];
     std::string memFile = argv[2];
-    std::string shortMemFile = argv[3];
 
     // Instantiate the DUT
     Vriscv *dut = new Vriscv;
@@ -101,7 +122,7 @@ int main(int argc, char** argv, char** env) {
     m_trace->open("waveform.vcd");
 
     // Reset the DUT
-    dut_test_init(dut, m_trace, sim_time, instrFile, memFile, shortMemFile);
+    dut_test_init(dut, m_trace, sim_time, instrFile, memFile);
 
     // Simulation loop
     while (sim_time < MAX_SIM_TIME) {
