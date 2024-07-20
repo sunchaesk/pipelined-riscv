@@ -87,7 +87,7 @@ class ITypeInstr : public RiscvInstruction {
         void checkImmeidateRange(int16_t imm) const;
 };
 
-class LoadInstr : RiscvInstruction {
+class LoadInstr : public RiscvInstruction {
     public:
         enum class LoadOps {
         LB,
