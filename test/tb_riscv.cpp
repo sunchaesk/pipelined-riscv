@@ -1,3 +1,6 @@
+
+#include "uvm.hpp"
+
 #include <stdlib.h>
 #include <string>
 #include <iostream>
@@ -8,7 +11,7 @@
 #include "Vriscv.h"
 #include "Vriscv__Syms.h"
 
-#define MAX_SIM_TIME 20
+#define MAX_SIM_TIME 300
 
 vluint64_t sim_time = 0;
 
@@ -146,7 +149,7 @@ void dut_riscv_load_memory(Vriscv *dut) {
 ////////////////////////////////////////////////////
 void d_dut_riscv_print_loaded_instructions(Vriscv *dut, vluint64_t &sim_time) {
     std::cout << "=== PRINTING LOADED INSTRUCTIONS ===" << std::endl;
-    for (int i = 0; i < 32; ++i) {
+    for (int i = 0; i < 256; ++i) {
         uint32_t instr_mem_value = dut->riscv__DOT__IF_unit__DOT__instr_mem[i];
         if (instr_mem_value != 0) {
             std::cout << "instr_mem[" << i << "]: 0x"
@@ -158,7 +161,7 @@ void d_dut_riscv_print_loaded_instructions(Vriscv *dut, vluint64_t &sim_time) {
 
 void d_dut_riscv_print_memory(Vriscv *dut, vluint64_t &sim_time) {
     std::cout << "=== PRINTING MEMORY CONTENT ===" << std::endl;
-    for (int i = 0; i < 32; i++){
+    for (int i = 0; i < 256; i++){
         uint32_t instr_mem_value = dut->riscv__DOT__MEM_unit__DOT__mem_array[i];
         if (instr_mem_value != 0) {
             std::cout << "instr_mem[" << i << "]: 0x"
@@ -166,6 +169,12 @@ void d_dut_riscv_print_memory(Vriscv *dut, vluint64_t &sim_time) {
         }
     }
     std::cout << "=== DONE PRINTING MEMORY CONTENT === " << std::endl;
+}
+
+void dut_test_random_init (Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &sim_time){
+    d_dut_riscv_print_loaded_instructions(dut, sim_time);
+    d_dut_riscv_print_memory(dut, sim_time);
+    dut_reset(dut, m_trace, sim_time);
 }
 
 // run the reset, load instruction, load register file
@@ -188,49 +197,140 @@ void dut_test_init_from_file (Vriscv *dut, VerilatedVcdC *m_trace, vluint64_t &s
     dut_riscv_load_register_file(dut);
 }
 
-int main(int argc, char** argv, char** env) {
-    std::cout << "Starting simulation\n";
+int main(int argc, char ** argv, char ** env) {
+    std::unordered_set<uint8_t> allowedRegisters = {
+    0,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17,
+    18,
+    19,
+    20,
+    21,
+    22,
+    23,
+    24,
+    25,
+    26,
+    27,
+    28,
+    29,
+    30,
+    31
+};
+    std::unordered_set<RTypeInstr::RTypeOps> allowedRTypeOps = {RTypeInstr::RTypeOps::ADD, RTypeInstr::RTypeOps::SUB};
+    std::unordered_set<ITypeInstr::ITypeOps> allowedITypeOps = {ITypeInstr::ITypeOps::ADDI};
+    std::unordered_set<BTypeInstr::BTypeOps> allowedBTypeOps = {BTypeInstr::BTypeOps::BEQ};
+    std::unordered_set<LoadInstr::LoadOps> allowedLoadOps = {LoadInstr::LoadOps::LW};
+    std::unordered_set<StoreInstr::StoreOps> allowedStoreOps = {StoreInstr::StoreOps::SW};
+    InstrTypeMap allowedInstrTypes = {
+    {"RType", true},
+    {"IType", true},
+    {"BType", false},
+    {"Load", false},
+    {"Store", false},
+    {"JType", false}
+};
+    int16_t mem_start = 0;
+    int16_t mem_end = 1024;
 
-    // load instruction file and memory file names from options
+    RiscvSequencer sequencer(allowedRegisters, allowedRTypeOps, allowedITypeOps, allowedBTypeOps, allowedLoadOps, allowedStoreOps, allowedInstrTypes, mem_start, mem_end);
 
-    // std::string instrFile = argv[1];
-    // std::string memFile = argv[2];
-    std::string instrFileName = "./test/instr.txt";
-    std::string memFileName = "./test/mem.txt";
+    Vriscv dut;
+    RiscvScoreBoard scb (allowedRegisters);
 
-    // Instantiate the DUT
-    Vriscv *dut = new Vriscv;
-
-    // Enable tracing
+    // Verilator setup
     Verilated::traceEverOn(true);
     VerilatedVcdC *m_trace = new VerilatedVcdC;
-    dut->trace(m_trace, 5);
+    (&dut)->trace(m_trace, 5);
     m_trace->open("waveform.vcd");
 
-    // Reset the DUT
-    // dut_test_init(dut, m_trace, sim_time, instrFile, memFile); DEPRECATED
-    // dut_test_init(dut, m_trace, sim_time); //
-    dut_test_init_from_file(dut, m_trace, sim_time, memFileName, instrFileName);
 
-    // Simulation loop
-    while (sim_time < MAX_SIM_TIME) {
-        // Toggle clock
-        dut->clk ^= 1;
+    RiscvInTx tt = sequencer.generateRandomInstructions(10);
 
-        // Evaluate DUT
-        dut->eval();
+    for (const auto& instr : tt.instructions) {
+        std::cout << "Test 0x" << instr->toString() << std::endl;
+    }
+
+
+    RiscvInDriver inDriver(&dut, &scb);
+
+    inDriver.drive(&tt);
+
+    RiscvOutMonitor outMonitor(&dut, &scb);
+
+    // run simulation
+    dut_test_random_init(&dut, m_trace, sim_time);
+
+    while (sim_time < MAX_SIM_TIME){
+        (&dut)->clk ^= 1;
+
+        (&dut)->eval();
         m_trace->dump(sim_time);
 
         sim_time++;
     }
 
-    // cleanup debug stuff
-    d_dut_riscv_print_memory(dut, sim_time);
 
-    // Close VCD trace file
-    m_trace->close();
+    outMonitor.monitor();
 
-    // Clean up
-    delete dut;
+
     exit(EXIT_SUCCESS);
 }
+
+// int main(int argc, char** argv, char** env) {
+//     std::cout << "Starting simulation\n";
+
+//     // load instruction file and memory file names from options
+
+//     // std::string instrFile = argv[1];
+//     // std::string memFile = argv[2];
+//     std::string instrFileName = "./test/instr.txt";
+//     std::string memFileName = "./test/mem.txt";
+
+//     // Instantiate the DUT
+//     Vriscv *dut = new Vriscv;
+
+//     // Enable tracing
+//     Verilated::traceEverOn(true);
+//     VerilatedVcdC *m_trace = new VerilatedVcdC;
+//     dut->trace(m_trace, 5);
+//     m_trace->open("waveform.vcd");
+
+//     // Reset the DUT
+//     // dut_test_init(dut, m_trace, sim_time, instrFile, memFile); DEPRECATED
+//     // dut_test_init(dut, m_trace, sim_time); //
+//     dut_test_init_from_file(dut, m_trace, sim_time, memFileName, instrFileName);
+
+//     // Simulation loop
+//     while (sim_time < MAX_SIM_TIME) {
+//         // Toggle clock
+//         dut->clk ^= 1;
+
+//         // Evaluate DUT
+//         dut->eval();
+//         m_trace->dump(sim_time);
+
+//         sim_time++;
+//     }
+
+//     // cleanup debug stuff
+//     d_dut_riscv_print_memory(dut, sim_time);
+
+//     // Close VCD trace file
+//     m_trace->close();
+
+//     // Clean up
+//     delete dut;
+//     exit(EXIT_SUCCESS);
+// }

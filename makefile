@@ -1,6 +1,7 @@
 MODULE=riscv
 
 VSRCS:=$(wildcard ./rtl/*.v)
+CSRCS:= ./test/tb_$(MODULE).cpp ./test/uvm.cpp ./test/isa_gen.cpp
 
 .PHONY:sim
 sim: waveform.vcd
@@ -27,15 +28,24 @@ waveform.vcd: ./obj_dir/V$(MODULE)
 	@echo "### BUILDING SIM ###"
 	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
 
-.stamp.verilate: ./rtl/$(MODULE).v ./test/tb_$(MODULE).cpp
+.stamp.verilate: ./rtl/$(MODULE).v $(CSRCS)
 	@echo
 	@echo "### VERILATING ###"
-	verilator --trace -cc $(VSRCS) --exe ./test/tb_$(MODULE).cpp --top-module riscv
+	verilator --trace -cc $(VSRCS) --exe $(CSRCS) --top-module riscv
 	@touch .stamp.verilate
 
 .PHONY:lint
 lint: $(MODULE).v
 	verilator --lint-only $(MODULE).v
+
+.PHONY:debug
+debug: .stamp.verilate_debug
+
+.stamp.verilate_debug: ./rtl/$(MODULE).v $(CSRCS)
+	@echo
+	@echo "### VERILATING IN DEBUG MODE ###"
+	verilator --trace -cc $(VSRCS) --exe $(CSRCS) --top-module $(MODULE) --debug  --gdbbt
+	@touch .stamp.verilate_debug
 
 .PHONY: clean
 clean:

@@ -15,7 +15,7 @@ void read_file(const char* file_name) {
         }
 
         try {
-            int out = std::stoi(instruction, nullptr, 16);
+            int out = std::stol(instruction, nullptr, 16);
             std::cout << out << std::endl;
             i++;
         } catch (const std::invalid_argument& e) {
