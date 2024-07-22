@@ -20,7 +20,8 @@ RISCV processor with incremental features added from the base 5 stage pipeline m
 - branch prediction unit
 - vector processing unit (RISCV V - instr extension)
 - superscalar
-- out-of-order execution 
+- out-of-order execution
+- floating point (FPU)
 
 ## extra stuff
 - run on Coremark benchmark
