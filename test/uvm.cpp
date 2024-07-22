@@ -50,6 +50,12 @@ int16_t RiscvSequencer::getRandomImmediate() {
     return dis(gen);
 }
 
+// non inclusive
+int16_t RiscvSequencer::getRandomPositiveImmediate(int16_t low, int16_t high) {
+    std::uniform_int_distribution<> dis(low, high - 1);
+    return dis(gen);
+}
+
 int16_t RiscvSequencer::getRandomWordAlignedImmediate(int16_t min, int16_t max) {
     if (min % 4 != 0 || max % 4 != 0) {
         throw std::invalid_argument("min and max must be multiples of 4 (including 0)");
@@ -79,12 +85,19 @@ RiscvInTx RiscvSequencer::generateRandomInstructions(size_t count) {
         // Generate R-Type instructions if allowed
         if (instrType == 0 && allowedInstrTypes.at("RType") && !allowedRTypeOps.empty()) {
             auto r_op = getRandomOp(allowedRTypeOps);
+            /* if (r_op == RTypeInstr::RTypeOps::SLLI || r_op == RTypeInstr::RTypeOps::SRLI || r_op == RTypeInstr::RTypeOps::SRAI){ */
+            /* } else { */
+            /* } */
             instructions.push_back(std::make_shared<RTypeInstr>(getRandomRegister(), getRandomRegister(), getRandomRegister(), r_op));
         }
         // Generate I-Type instructions if allowed
         else if (instrType == 1 && allowedInstrTypes.at("IType") && !allowedITypeOps.empty()) {
             auto i_op = getRandomOp(allowedITypeOps);
-            instructions.push_back(std::make_shared<ITypeInstr>(getRandomRegister(), getRandomRegister(), getRandomImmediate(), i_op));
+            if (i_op == ITypeInstr::ITypeOps::SLLI || i_op == ITypeInstr::ITypeOps::SRLI || i_op == ITypeInstr::ITypeOps::SRAI){
+                instructions.push_back(std::make_shared<ITypeInstr>(getRandomRegister(), getRandomRegister(), getRandomPositiveImmediate(0, 32), i_op));
+            } else {
+                instructions.push_back(std::make_shared<ITypeInstr>(getRandomRegister(), getRandomRegister(), getRandomImmediate(), i_op));
+            }
         }
         // Generate B-Type instructions if allowed
         else if (instrType == 2 && allowedInstrTypes.at("BType") && !allowedBTypeOps.empty()) {
@@ -300,7 +313,7 @@ std::vector<int32_t> RiscvScoreBoard::readSimulatorMemArray() {
     // }
 
     if (simulator_mem_array.size() != 1024/4) {
-        throw std::range_error("Memory size was not equal to the expected value of 32 entries");
+        throw std::range_error("Memory size was not equal to the expected value of 256 entries");
     }
 
     return simulator_mem_array;

@@ -68,6 +68,7 @@ class RiscvSequencer {
 
         uint8_t getRandomRegister();
         int16_t getRandomImmediate();
+        int16_t getRandomPositiveImmediate(int16_t low, int16_t high);
         int16_t getRandomWordAlignedImmediate(int16_t min, int16_t max);
 
         template<typename T>

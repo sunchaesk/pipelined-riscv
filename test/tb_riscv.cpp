@@ -228,8 +228,25 @@ int main(int argc, char ** argv, char ** env) {
     30,
     31
 };
-    std::unordered_set<RTypeInstr::RTypeOps> allowedRTypeOps = {RTypeInstr::RTypeOps::ADD, RTypeInstr::RTypeOps::SUB};
-    std::unordered_set<ITypeInstr::ITypeOps> allowedITypeOps = {ITypeInstr::ITypeOps::ADDI};
+    std::unordered_set<RTypeInstr::RTypeOps> allowedRTypeOps = {
+    RTypeInstr::RTypeOps::ADD,
+    RTypeInstr::RTypeOps::SUB,
+    RTypeInstr::RTypeOps::XOR,
+    RTypeInstr::RTypeOps::OR,
+    RTypeInstr::RTypeOps::AND,
+    // RTypeInstr::RTypeOps::SLL,
+    // RTypeInstr::RTypeOps::SRL,
+    // RTypeInstr::RTypeOps::SUB,
+    // RTypeInstr::RTypeOps::,
+    // RTypeInstr::RTypeOps::SLTU,
+};
+    std::unordered_set<ITypeInstr::ITypeOps> allowedITypeOps = {
+    ITypeInstr::ITypeOps::ADDI,
+    ITypeInstr::ITypeOps::XORI,
+    ITypeInstr::ITypeOps::ANDI,
+    ITypeInstr::ITypeOps::SLLI,
+    ITypeInstr::ITypeOps::SRLI,
+};
     std::unordered_set<BTypeInstr::BTypeOps> allowedBTypeOps = {BTypeInstr::BTypeOps::BEQ};
     std::unordered_set<LoadInstr::LoadOps> allowedLoadOps = {LoadInstr::LoadOps::LW};
     std::unordered_set<StoreInstr::StoreOps> allowedStoreOps = {StoreInstr::StoreOps::SW};
