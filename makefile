@@ -1,7 +1,10 @@
+# make clean && make && make waves
+# make rtl_test
 MODULE=riscv
 
 VSRCS:=$(wildcard ./rtl/*.v)
 CSRCS:= ./test/tb_$(MODULE).cpp ./test/uvm.cpp ./test/isa_gen.cpp
+RTL_TEST_CSRC:=./test/tb_rtl.cpp
 
 .PHONY:sim
 sim: waveform.vcd
@@ -10,7 +13,7 @@ sim: waveform.vcd
 verilate: .stamp.verilate
 
 .PHONY:build
-build: obj_dir/Valu
+build: obj_dir/Vriscv
 
 .PHONY:waves
 waves: waveform.vcd
@@ -26,7 +29,7 @@ waveform.vcd: ./obj_dir/V$(MODULE)
 ./obj_dir/V$(MODULE): .stamp.verilate
 	@echo
 	@echo "### BUILDING SIM ###"
-	make -C obj_dir -f V$(MODULE).mk V$(MODULE)
+	make -j -C obj_dir -f V$(MODULE).mk V$(MODULE) CXXFLAGS="-g"
 
 .stamp.verilate: ./rtl/$(MODULE).v $(CSRCS)
 	@echo
@@ -38,6 +41,7 @@ waveform.vcd: ./obj_dir/V$(MODULE)
 lint: $(MODULE).v
 	verilator --lint-only $(MODULE).v
 
+# debug build start
 .PHONY:debug
 debug: .stamp.verilate_debug
 
@@ -46,6 +50,42 @@ debug: .stamp.verilate_debug
 	@echo "### VERILATING IN DEBUG MODE ###"
 	verilator --trace -cc $(VSRCS) --exe $(CSRCS) --top-module $(MODULE) --debug  --gdbbt
 	@touch .stamp.verilate_debug
+
+# debug build end
+
+##############################
+# rtl test build start
+##############################
+.PHONY: verilate_rtl_test
+verilate_rtl_test: .stamp.verilate_rtl_test
+
+.PHONY: build_rtl_test
+build_rtl_test: ./obj_dir/Vtest
+
+.PHONY: waves_rtl_test
+waves_rtl_test: waveform_rtl_test.vcd
+	@echo
+	@echo "### WAVES RTL TEST ###"
+	gtkwave -S gtkwave.tcl waveform_rtl_test.vcd
+
+waveform_rtl_test.vcd: ./obj_dir/Vtest
+	@echo
+	@echo "### SIMULATING RTL TEST ###"
+	@./obj_dir/Vtest
+
+./obj_dir/Vtest: .stamp.verilate_rtl_test
+	@echo
+	@echo "### BUILDING RTL TEST SIM ###"
+	make -j -C obj_dir -f Vtest.mk Vtest CXXFLAGS="-g"
+
+.stamp.verilate_rtl_test: ./rtl/test.v $(RTL_TEST_CSRC)
+	@echo
+	@echo "### VERILATING RTL TEST ###"
+	verilator --trace -cc $(VSRCS) --exe $(RTL_TEST_CSRC) --top-module test
+	@touch .stamp.verilate_rtl_test
+##############################
+# rtl test build end
+##############################
 
 .PHONY: clean
 clean:
