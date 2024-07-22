@@ -53,3 +53,7 @@ clean:
 	rm -rf ./obj_dir
 	rm -rf waveform.vcd
 	rm -rf waveform.vcd.pdf
+	rm ./test/registers.txt
+	rm ./test/simulator_output.txt
+	rm ./test/memory.txt
+	rm ./test/test.asm

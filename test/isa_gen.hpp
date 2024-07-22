@@ -65,7 +65,7 @@ class ITypeInstr : public RiscvInstruction {
                 ANDI,
                 SLLI,
                 SRLI,
-                SRAI,
+                // SRAI,
                 SLTI,
                 SLTUI
         };

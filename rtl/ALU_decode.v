@@ -15,7 +15,7 @@ module ALU_decode (
 
    always @(*) begin
       case(opcode)
-        OP_I,
+        OP_I: alu_control = {1'b0, funct3};
         OP_R: alu_control = {funct7b5, funct3};
         OP_LW: alu_control = 4'b0000; // add
         OP_SW: alu_control = 4'b0000; // add

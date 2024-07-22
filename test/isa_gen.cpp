@@ -128,10 +128,10 @@ void ITypeInstr::setFunctBits(ITypeOps i_ops) {
             funct3 = 0b101;
             imm &= ~(1 << 10);
             break;
-        case ITypeOps::SRAI:
-            funct3 = 0b101;
-            imm |= (1 << 10);
-            break;
+        // case ITypeOps::SRAI:
+        //     funct3 = 0b101;
+        //     imm |= (1 << 10);
+        //     break;
         case ITypeOps::SLTI:
             funct3 = 0b010;
             break;

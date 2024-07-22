@@ -233,7 +233,7 @@ int main(int argc, char ** argv, char ** env) {
     RTypeInstr::RTypeOps::SUB,
     RTypeInstr::RTypeOps::XOR,
     RTypeInstr::RTypeOps::OR,
-    RTypeInstr::RTypeOps::AND,
+    RTypeInstr::RTypeOps::AND
     // RTypeInstr::RTypeOps::SLL,
     // RTypeInstr::RTypeOps::SRL,
     // RTypeInstr::RTypeOps::SUB,

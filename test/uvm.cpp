@@ -93,7 +93,8 @@ RiscvInTx RiscvSequencer::generateRandomInstructions(size_t count) {
         // Generate I-Type instructions if allowed
         else if (instrType == 1 && allowedInstrTypes.at("IType") && !allowedITypeOps.empty()) {
             auto i_op = getRandomOp(allowedITypeOps);
-            if (i_op == ITypeInstr::ITypeOps::SLLI || i_op == ITypeInstr::ITypeOps::SRLI || i_op == ITypeInstr::ITypeOps::SRAI){
+            /* if (i_op == ITypeInstr::ITypeOps::SLLI || i_op == ITypeInstr::ITypeOps::SRLI || i_op == ITypeInstr::ITypeOps::SRAI){ */
+            if (i_op == ITypeInstr::ITypeOps::SLLI || i_op == ITypeInstr::ITypeOps::SRLI){
                 instructions.push_back(std::make_shared<ITypeInstr>(getRandomRegister(), getRandomRegister(), getRandomPositiveImmediate(0, 32), i_op));
             } else {
                 instructions.push_back(std::make_shared<ITypeInstr>(getRandomRegister(), getRandomRegister(), getRandomImmediate(), i_op));
@@ -281,7 +282,6 @@ void RiscvScoreBoard::writeOut(RiscvOutTx *tx){
     //     std::cout << i << " " << simulator_reg_array[i] << std::endl;
     // }
 
-    delete tx;
 
 }
 
