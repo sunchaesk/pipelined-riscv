@@ -6,6 +6,8 @@ RISCV processor with incremental features added from the base 5 stage pipeline m
 * riscv-gnu-toolchain
 * GTKwave
 * RARS (https://github.com/TheThirdOne/rars)
+* java (for running RARS)
+* perl 5
 
 ## finished features
 - 5 stage pipeline

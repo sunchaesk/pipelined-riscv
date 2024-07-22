@@ -24,7 +24,7 @@ module MEM (
    assign mem_regwrite_m = regwrite_m;
    assign mem_alu_result_m = alu_result_m;
 
-   reg [31:0]                 mem_array [0:31];
+   reg [31:0]                 mem_array [0:255];
 
    always @(posedge clk or posedge reset) begin
       if (reset) begin

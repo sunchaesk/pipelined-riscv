@@ -48,7 +48,7 @@ module IF (
            );
 
    // reg [31:0]                instr_mem [0:255]; // Instruction memory
-   reg [31:0]                instr_mem [31:0]; // Instruction memory
+   reg [31:0]                instr_mem [255:0]; // Instruction memory
    reg [31:0]                next_pc;           // Next program counter value
 
 

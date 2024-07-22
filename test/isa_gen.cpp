@@ -65,7 +65,39 @@ uint32_t RTypeInstr::encode() const {
         opcode;
 }
 
-
+std::string RTypeInstr::toString() const {
+    std::ostringstream oss;
+    switch (funct3) {
+    case 0b000:
+        oss << (funct7 == 0b0000000 ? "add" : "sub");
+        break;
+    case 0b100:
+        oss << "xor";
+        break;
+    case 0b110:
+        oss << "or";
+        break;
+    case 0b111:
+        oss << "and";
+        break;
+    case 0b001:
+        oss << "sll";
+        break;
+    case 0b101:
+        oss << (funct7 == 0b0000000 ? "srl" : "sra");
+        break;
+    case 0b010:
+        oss << "slt";
+        break;
+    case 0b011:
+        oss << "sltu";
+        break;
+    }
+    oss << " x" << static_cast<int>(rd) << ","
+        << " x" << static_cast<int>(rs1) << ","
+        << " x" << static_cast<int>(rs2);
+    return oss.str();
+}
 //////////////////////////////////////////////////////////
 // ITYPE
 //////////////////////////////////////////////////////////
@@ -125,6 +157,40 @@ uint32_t ITypeInstr::encode() const {
         opcode;
 }
 
+std::string ITypeInstr::toString() const {
+    std::ostringstream oss;
+    switch (funct3) {
+    case 0b000:
+        oss << "addi";
+        break;
+    case 0b100:
+        oss << "xori";
+        break;
+    case 0b110:
+        oss << "ori";
+        break;
+    case 0b111:
+        oss << "andi";
+        break;
+    case 0b001:
+        oss << "slli";
+        break;
+    case 0b101:
+        oss << (funct7 == 0b0000000 ? "srli" : "srai");
+        break;
+    case 0b010:
+        oss << "slti";
+        break;
+    case 0b011:
+        oss << "sltiu";
+        break;
+    }
+    oss << " x" << static_cast<int>(rd)
+        << ", x" << static_cast<int>(rs1)
+        << ", " << imm;
+    return oss.str();
+}
+
 ////////////////////////////////////////////////
 // I-type (load word)
 ////////////////////////////////////////////////
@@ -170,7 +236,30 @@ uint32_t LoadInstr::encode() const {
         opcode;
 }
 
-
+std::string LoadInstr::toString() const {
+    std::ostringstream oss;
+    switch (funct3) {
+    case 0b000:
+        oss << "lb";
+        break;
+    case 0b001:
+        oss << "lh";
+        break;
+    case 0b010:
+        oss << "lw";
+        break;
+    case 0b100:
+        oss << "lbu";
+        break;
+    case 0b101:
+        oss << "lhu";
+        break;
+    }
+    oss << " x" << static_cast<int>(rd)
+        << ", " << imm
+        << "(x" << static_cast<int>(rs1) << ")";
+    return oss.str();
+}
 ////////////////////////////////////////////////
 // S-Type (store)
 ////////////////////////////////////////////////
@@ -212,6 +301,24 @@ uint32_t StoreInstr::encode () const {
         opcode;
 }
 
+std::string StoreInstr::toString() const {
+    std::ostringstream oss;
+    switch (funct3) {
+    case 0b000:
+        oss << "sb";
+        break;
+    case 0b001:
+        oss << "sh";
+        break;
+    case 0b010:
+        oss << "sw";
+        break;
+    }
+    oss << " x" << static_cast<int>(rs2)
+        << ", " << imm
+        << "(x" << static_cast<int>(rs1) << ")";
+    return oss.str();
+}
 ////////////////////////////////////////////
 // B-Type instr (Branch)
 ////////////////////////////////////////////
@@ -269,6 +376,33 @@ uint32_t BTypeInstr::encode() const {
         opcode;
 }
 
+std::string BTypeInstr::toString() const {
+    std::ostringstream oss;
+    switch (funct3) {
+    case 0b000:
+        oss << "beq";
+        break;
+    case 0b001:
+        oss << "bne";
+        break;
+    case 0b100:
+        oss << "blt";
+        break;
+    case 0b101:
+        oss << "bge";
+        break;
+    case 0b110:
+        oss << "bltu";
+        break;
+    case 0b111:
+        oss << "bgeu";
+        break;
+    }
+    oss << " x" << static_cast<int>(rs1)
+        << ", x" << static_cast<int>(rs2)
+        << ", " << imm;
+    return oss.str();
+}
 ////////////////////////////////////////
 // J Type (only jal instr)
 ////////////////////////////////////////
@@ -298,6 +432,12 @@ void JTypeInstr::checkImmediateRange(int32_t imm) const {
     }
 }
 
+std::string JTypeInstr::toString() const {
+    std::ostringstream oss;
+    oss << "jal x" << static_cast<int>(rd)
+        << ", " << imm;
+    return oss.str();
+}
 ////////////////////////////////////
 // JALR
 ////////////////////////////////////
@@ -321,4 +461,12 @@ void JALRInstr::checkImmediateRange(int16_t imm) const {
     if (imm < -2048 || imm > 2047) { // 12-bit signed immediate range is from -2048 to 2047
         throw std::out_of_range("Immediate value out of 12-bit range");
     }
+}
+
+std::string JALRInstr::toString() const {
+    std::ostringstream oss;
+    oss << "jalr x" << static_cast<int>(rd)
+        << ", " << imm
+        << "(x" << static_cast<int>(rs1) << ")";
+    return oss.str();
 }

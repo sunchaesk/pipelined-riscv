@@ -18,6 +18,7 @@ module control (
    localparam                OP_B = 7'b1100011;
    localparam                OP_I = 7'b0010011;
    localparam                OP_J = 7'b1101111;
+   // localparam                OP_JALR = 7'b1100111;
 
    reg [6:0]                 control_signals;
 
@@ -49,6 +50,7 @@ module control (
         OP_I:  control_signals = 7'b1100000; // {regwrite, alu_src, memwrite, result_src, branch, jump}
         OP_B:  control_signals = 7'b0001010; // {regwrite, alu_src, memwrite, result_src, branch, jump}
         OP_J:  control_signals = 7'b1001001; // {regwrite, alu_src, memwrite, result_src, branch, jump}
+        // OP_JALR: control_signals = 7'b1101001;
         default: control_signals = 7'b0000000; // Default case for undefined opcodes
       endcase
    end
