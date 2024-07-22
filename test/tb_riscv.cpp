@@ -5,7 +5,6 @@
 #include <string>
 #include <iostream>
 #include <fstream>
-#include <string>
 #include <verilated.h>
 #include <verilated_vcd_c.h>
 #include "Vriscv.h"
