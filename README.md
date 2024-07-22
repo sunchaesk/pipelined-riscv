@@ -13,6 +13,8 @@ RISCV processor with incremental features added from the base 5 stage pipeline m
 - 5 stage pipeline
 - hazard unit (RAW, lw, branch)
 - connect with RARS simulator
+- UVM standard implementation from scratch in C++
+- pipeline to compile using GCC toolchain to run on CPU
 
 ## features TODO
 - branch prediction unit
@@ -21,7 +23,5 @@ RISCV processor with incremental features added from the base 5 stage pipeline m
 - out-of-order execution 
 
 ## extra stuff
-- pipeline to compile using GCC toolchain to run on CPU
 - run on Coremark benchmark
-- UVM standard implementation from scratch in C++
 - Formal verification 
