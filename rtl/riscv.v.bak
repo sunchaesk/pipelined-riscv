@@ -1,6 +1,6 @@
 module riscv (
-              input wire        clk,
-              input wire        reset
+              input         clk,
+              input         reset
               // output [31:0] instr_out,
               // output [31:0] pc_out
               );
@@ -15,6 +15,7 @@ module riscv (
    wire [31:0]              if_id_pc_plus_4;
    //ID/EX
    wire [4:0]               id_ex_rd;
+   wire [31:0]              id_ex_pc;
    wire [31:0]              id_ex_reg_a; // rs1_data
    wire [31:0]              id_ex_reg_b; // rs2_data
    wire [31:0]              id_ex_imm;

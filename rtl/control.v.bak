@@ -22,8 +22,8 @@ module control (
 
    reg [6:0]                 control_signals;
 
-   wire [1:0]                 result_src;
-   wire                       regwrite, memwrite, jump, branch, alu_src;
+   reg [1:0]                 result_src;
+   reg                       regwrite, memwrite, jump, branch, alu_src;
 
    ALU_decode ALU_decode_unit (
                                .funct3(funct3),
