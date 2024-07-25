@@ -22,6 +22,7 @@ RISCV processor with incremental features added from the base 5 stage pipeline m
 - superscalar
 - out-of-order execution
 - floating point (FPU)
+- Synthesis
 
 ## extra stuff
 - run on Coremark benchmark
