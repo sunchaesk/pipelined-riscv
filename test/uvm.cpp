@@ -273,6 +273,7 @@ void RiscvScoreBoard::writeOut(RiscvOutTx *tx){
             exit(1);
         }
     }
+    std::cout << "REPORT: ALL TEST PASSED" << std::endl;
     // compare memory content
 
     // for (size_t i = 0; i < simulator_mem_array.size(); ++i){

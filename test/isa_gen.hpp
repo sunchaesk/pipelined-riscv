@@ -5,6 +5,10 @@
 #include <string>
 #include <iomanip>
 #include <memory>
+#include <unordered_map>
+
+// for generateRandomInstructions settings stuff
+using InstrTypeMap = std::unordered_map<std::string, bool>;
 
 class RiscvInstruction {
         private:
@@ -13,6 +17,9 @@ class RiscvInstruction {
                 virtual uint32_t encode() const = 0;
                 virtual std::string toString() const = 0;
                 virtual std::shared_ptr<RiscvInstruction> clone() const = 0;
+                uint8_t rd;
+                uint8_t rs1;
+                uint8_t rs2;
 };
 
 class RTypeInstr : public RiscvInstruction {
