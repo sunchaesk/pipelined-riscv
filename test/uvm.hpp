@@ -21,8 +21,6 @@
 #include <unordered_map>
 
 
-// for generateRandomInstructions settings stuff
-using InstrTypeMap = std::unordered_map<std::string, bool>;
 
 // riscv input interface transaction item class
 // RiscvInTx obj will contain a sequence of instructions

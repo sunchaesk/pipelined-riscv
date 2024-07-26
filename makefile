@@ -3,8 +3,8 @@
 MODULE=riscv
 
 VSRCS:=$(wildcard ./rtl/*.v)
-CSRCS:= ./test/tb_$(MODULE).cpp ./test/uvm.cpp ./test/isa_gen.cpp
-RTL_TEST_CSRC:=./test/tb_rtl.cpp
+CSRCS:= ./test/tb_$(MODULE).cpp ./test/uvm.cpp ./test/isa_gen.cpp ./test/data_hazard_gen.cpp
+RTL_TEST_CSRC:=./test/tb_rtl.cpp ./test/uvm.cpp ./test/isa_gen.cpp ./test/data_hazard_gen.cpp
 
 .PHONY:sim
 sim: waveform.vcd
@@ -81,8 +81,13 @@ waveform_rtl_test.vcd: ./obj_dir/Vtest
 .stamp.verilate_rtl_test: ./rtl/test.v $(RTL_TEST_CSRC)
 	@echo
 	@echo "### VERILATING RTL TEST ###"
-	verilator --trace -cc $(VSRCS) --exe $(RTL_TEST_CSRC) --top-module test
+	verilator -Wno-latch -Wno-unoptflat --trace -cc $(VSRCS) --exe $(RTL_TEST_CSRC) --top-module test
 	@touch .stamp.verilate_rtl_test
+
+.PHONY: run_rtl_test
+run_rtl_test: verilate_rtl_test build_rtl_test waves_rtl_test
+	@echo
+	@echo "### RTL TEST COMPLETE ###"
 ##############################
 # rtl test build end
 ##############################
@@ -91,6 +96,8 @@ waveform_rtl_test.vcd: ./obj_dir/Vtest
 clean:
 	rm -rf .stamp.*;
 	rm -rf ./obj_dir
+	rm ./waveform_rtl_test.vcd
+	rm ./waveform_rtl_test.vcd.pdf
 	rm -rf waveform.vcd
 	rm -rf waveform.vcd.pdf
 	rm ./test/registers.txt
