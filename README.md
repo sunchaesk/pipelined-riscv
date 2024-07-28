@@ -15,6 +15,10 @@ RISCV processor with incremental features added from the base 5 stage pipeline m
 - connect with RARS simulator
 - UVM standard implementation from scratch in C++
 - pipeline to compile using GCC toolchain to run on CPU
+- synthesis
+
+## WIP
+- RISCV V extension
 
 ## features TODO
 - branch prediction unit
@@ -22,7 +26,6 @@ RISCV processor with incremental features added from the base 5 stage pipeline m
 - superscalar
 - out-of-order execution
 - floating point (FPU)
-- Synthesis
 
 ## extra stuff
 - run on Coremark benchmark
