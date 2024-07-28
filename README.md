@@ -14,6 +14,8 @@ RISCV processor with incremental features added from the base 5 stage pipeline m
 - hazard unit (RAW, lw, branch)
 - connect with RARS simulator
 - UVM standard implementation from scratch in C++
+  - Random RV32I instruction UVM sequencer
+  - Random RV32I (R, I type instr) data hazard UVM sequencer
 - pipeline to compile using GCC toolchain to run on CPU
 - synthesis
 
