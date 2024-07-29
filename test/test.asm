@@ -2,13 +2,13 @@
 .globl _start
 
 _start:
-    xori x15, x22, 1061
-    sub x28, x27, x24
-    srli x13, x23, 11
-    addi x5, x15, -1387
-    xor x8, x26, x13
-    xori x31, x9, 1613
-    or x26, x14, x21
-    addi x30, x13, 31
-    xori x10, x25, 244
-    slli x25, x16, 0
+    sub x119, x14, x20
+    addi x28, x114, 221
+    add x116, x27, x29
+    addi x101, x23, -923
+    addi x116, x8, 1304
+    addi x0, x28, -1660
+    add x13, x19, x16
+    addi x102, x28, 1511
+    addi x101, x22, 1225
+    addi x9, x7, 31

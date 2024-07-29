@@ -1,5 +1,6 @@
 
 #include "uvm.hpp"
+#include "data_hazard_gen.hpp"
 
 #include <stdlib.h>
 #include <string>
@@ -257,10 +258,21 @@ int main(int argc, char ** argv, char ** env) {
     {"Store", false},
     {"JType", false}
 };
+
+
+    std::unordered_set<ITypeInstr::ITypeOps> allowedITypeOpsDataHazardSequencer = {
+    ITypeInstr::ITypeOps::ADDI,
+};
+
+    std::unordered_set<RTypeInstr::RTypeOps> allowedRTypeOpsDataHazardSequencer = {
+    RTypeInstr::RTypeOps::ADD,
+    RTypeInstr::RTypeOps::SUB,
+};
     int16_t mem_start = 0;
     int16_t mem_end = 1024;
 
     RiscvSequencer sequencer(allowedRegisters, allowedRTypeOps, allowedITypeOps, allowedBTypeOps, allowedLoadOps, allowedStoreOps, allowedInstrTypes, mem_start, mem_end);
+    DataHazardRiscvSequencer data_hazard_sequencer(allowedRegisters, allowedRTypeOpsDataHazardSequencer, allowedITypeOpsDataHazardSequencer);
 
     Vriscv dut;
     RiscvScoreBoard scb (allowedRegisters);
@@ -273,15 +285,21 @@ int main(int argc, char ** argv, char ** env) {
 
 
     RiscvInTx tt = sequencer.generateRandomInstructions(10);
+    RiscvInTx dh_tt = data_hazard_sequencer.generateDataHazardRandomInstructions(10);
 
+    std::cout << "RANDOM INSTRUCTIONS" << std::endl;
     for (const auto& instr : tt.instructions) {
-        std::cout << "Test 0x" << instr->toString() << std::endl;
+        std::cout << "Test 0x " << instr->toString() << std::endl;
+    }
+    std::cout << "RANDOM INSTRUCTIONS - DATA HAZARD" <<std::endl;
+    for (const auto& instr : dh_tt.instructions) {
+        std::cout << "Test 0x " << instr->toString() << std::endl;
     }
 
 
     RiscvInDriver inDriver(&dut, &scb);
 
-    inDriver.drive(&tt);
+    inDriver.drive(&dh_tt);
 
     RiscvOutMonitor outMonitor(&dut, &scb);
 

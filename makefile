@@ -2,7 +2,7 @@
 # make rtl_test
 MODULE=riscv
 
-VSRCS:=$(wildcard ./rtl/*.v)
+VSRCS:=$(wildcard ./rtl/*.v) $(wildcard ./rtl/vec/*.v)
 CSRCS:= ./test/tb_$(MODULE).cpp ./test/uvm.cpp ./test/isa_gen.cpp ./test/data_hazard_gen.cpp
 RTL_TEST_CSRC:=./test/tb_rtl.cpp ./test/uvm.cpp ./test/isa_gen.cpp ./test/data_hazard_gen.cpp
 
