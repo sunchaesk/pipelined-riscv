@@ -1,162 +1,176 @@
-
-#include <string>
 #include <iostream>
-#include <fstream>
+#include <verilated.h>
+#include <verilated_vcd_c.h>
+#include "Vtest.h"
 
-// #include <verilated.h>
-// #include <verilated_vcd_c.h>
-// #include "Vtest.h"
-// #include "Vtest__Syms.h"
+const vluint64_t MAX_SIM_TIME = 1000;
 
-#include "data_hazard_gen.hpp"
+void dut_reset(Vtest* dut, VerilatedVcdC* trace, vluint64_t& sim_time) {
+    dut->reset = 1;
+    trace->dump(sim_time++);
+    dut->reset = 0;
+    trace->dump(sim_time++);
+}
 
-#define MAX_SIM_TIME 300
+void test_vsew_32(Vtest *dut, VerilatedVcdC* m_trace, vluint64_t& sim_time){
+    // Set input values
+    dut->vsew = 0b010; // Example value for vsew
+    dut->funct6 = 0b000000; // Example value for funct6
 
-vluint64_t sim_time = 0;
+    uint32_t operand_a_arr[8] = {
+        0x01010101, 0x01010101, 0x02020202, 0x02020202,
+        0x03030303, 0x03030303, 0x04040404, 0x40404040
+    };
+    uint32_t operand_b_arr[8] = {
+        0x10101010, 0x10101010, 0x20202020, 0x20202020,
+        0x30303030, 0x30303030, 0x40404040, 0x04040404
+    };
 
-// void dut_reset (Vtest * dut, VerilatedVcdC *m_trace, vluint64_t &sim_time){
-//     dut->reset = 1;
-//     dut->clk = 1;
-//     dut->eval();
-//     m_trace->dump(sim_time);
-//     sim_time++;
-//     dut->clk = 0;
-//     dut->eval();
-//     m_trace->dump(sim_time);
-//     sim_time++;
-//     dut->reset = 0;
-// }
-
-int main() {
-    std::unordered_set<uint8_t> allowedRegisters = {
-    0,
-    5,
-    6,
-    7,
-    8,
-    9,
-    10,
-    11,
-    12,
-    13,
-    14,
-    15,
-    16,
-    17,
-    18,
-    19,
-    20,
-    21,
-    22,
-    23,
-    24,
-    25,
-    26,
-    27,
-    28,
-    29,
-    30,
-    31
-};
-    std::unordered_set<RTypeInstr::RTypeOps> allowedRTypeOps = {
-    RTypeInstr::RTypeOps::ADD,
-    RTypeInstr::RTypeOps::SUB,
-    // RTypeInstr::RTypeOps::XOR,
-    // RTypeInstr::RTypeOps::OR,
-    // RTypeInstr::RTypeOps::AND
-};
-    std::unordered_set<ITypeInstr::ITypeOps> allowedITypeOps = {
-    ITypeInstr::ITypeOps::ADDI,
-    // ITypeInstr::ITypeOps::XORI,
-    // ITypeInstr::ITypeOps::ANDI,
-    // ITypeInstr::ITypeOps::SLLI,
-    // ITypeInstr::ITypeOps::SRLI,
-};
-
-    DataHazardRiscvSequencer sequencer(allowedRegisters, allowedRTypeOps, allowedITypeOps);
-
-    // sequencer.propagateInstructions(10);
-
-    RiscvInTx tt = sequencer.generateDataHazardRandomInstructions(10);
-
-    for (const auto& instr : tt.instructions) {
-        std::cout << "Test 0x " << instr->toString() << std::endl;
+    for (int i = 0; i < 8; ++i) {
+        dut->operand_a[i] = operand_a_arr[i];
+        dut->operand_b[i] = operand_b_arr[i];
     }
-    // Generate a specified number of random instructions
-    // size_t instructionCount = 10;
-    // auto save = sequencer.generateDataHazardRandomInstructions(instructionCount);
 
-    // // Print the generated random instructions
+    // Apply new instruction
+    dut->new_instr = 1;
+    m_trace->dump(sim_time++);
+    dut->new_instr = 0;
+
+    // Run simulation
+    while (sim_time < MAX_SIM_TIME) {
+        dut->clk = !dut->clk;  // Toggle clock
+        dut->eval();           // Evaluate DUT
+        m_trace->dump(sim_time); // Dump trace data
+        sim_time++;
+
+        if (dut->vec_op_done == 1) {
+            std::cout << "Operation Done!" << std::endl;
+
+            // Print the output value
+            std::cout << "Input operand_a: ";
+            for (int i = 0; i < 8; ++i) {
+                std::cout << std::hex << dut->operand_a[i] << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "Input operand_b: ";
+            for (int i = 0; i < 8; ++i) {
+                std::cout << std::hex << dut->operand_b[i] << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "vec_exec_out: ";
+            for (int i = 0; i < 8; ++i) {
+                std::cout << std::hex << dut->vec_exec_out[i] << " ";
+            }
+            std::cout << std::endl;
+            break;
+        }
+    }
+
+    // Clean up
+    m_trace->close();
+    delete dut;
+    delete m_trace;
+
+    std::cout << "Simulation finished" << std::endl;
+}
+
+void test_vsew_16(Vtest *dut, VerilatedVcdC* m_trace, vluint64_t& sim_time) {
+    // Set input values
+    dut->vsew = 0b001; // Example value for vsew (16-bit)
+    dut->funct6 = 0b000000; // Example value for funct6
+
+    uint16_t operand_a_arr[16] = {
+        0x0101, 0x0101, 0x0202, 0x0202,
+        0x0303, 0x0303, 0x0404, 0x0404,
+        0x0505, 0x0505, 0x0606, 0x0606,
+        0x0707, 0x0707, 0x0808, 0x0808
+    };
+    uint16_t operand_b_arr[16] = {
+        0x1010, 0x1010, 0x2020, 0x2020,
+        0x3030, 0x3030, 0x4040, 0x4040,
+        0x5050, 0x5050, 0x6060, 0x6060,
+        0x7070, 0x7070, 0x8080, 0x8080
+    };
+
+    // Set the input operands
+    for (int i = 0; i < 8; ++i) {
+        // Combine two 16-bit values into a 32-bit value for the DUT
+        dut->operand_a[i] = (operand_a_arr[2 * i + 1] << 16) | operand_a_arr[2 * i];
+        dut->operand_b[i] = (operand_b_arr[2 * i + 1] << 16) | operand_b_arr[2 * i];
+    }
+
+    // Apply new instruction
+    dut->new_instr = 1;
+    m_trace->dump(sim_time++);
+    dut->new_instr = 0;
+
+    // Run simulation
+    while (sim_time < MAX_SIM_TIME) {
+        dut->clk = !dut->clk;  // Toggle clock
+        dut->eval();           // Evaluate DUT
+        m_trace->dump(sim_time); // Dump trace data
+        sim_time++;
+
+        if (dut->vec_op_done == 1) {
+            std::cout << "Operation Done!" << std::endl;
+
+            // Print the output value
+            std::cout << "Input operand_a: ";
+            for (int i = 0; i < 8; ++i) {
+                std::cout << std::hex << dut->operand_a[i] << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "Input operand_b: ";
+            for (int i = 0; i < 8; ++i) {
+                std::cout << std::hex << dut->operand_b[i] << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "vec_exec_out: ";
+            for (int i = 0; i < 16; ++i) {
+                // Combine two 16-bit values into a 32-bit value for output
+                uint32_t combined_output = (dut->vec_exec_out[i / 2] >> (16 * (i % 2))) & 0xFFFF;
+                std::cout << std::hex << combined_output << " ";
+            }
+            std::cout << std::endl;
+            break;
+        }
+    }
+
+    // Clean up
+    m_trace->close();
+    delete dut;
+    delete m_trace;
+
+    std::cout << "Simulation finished" << std::endl;
+}
+int main(int argc, char** argv) {
+    std::cout << "tb_rtl.cpp" << std::endl;
+
+    Verilated::commandArgs(argc, argv);
+
+    // Initialize Vtest module
+    Vtest* dut = new Vtest;
+
+    // Enable VCD tracing
+    Verilated::traceEverOn(true);
+    VerilatedVcdC* m_trace = new VerilatedVcdC;
+    dut->trace(m_trace, 99); // Add all signals with verbosity level 99
+    m_trace->open("waveform_rtl_test.vcd");
+
+    // Add signals to trace manually
+
+    // Initialize simulation time
+    vluint64_t sim_time = 0;
+
+    // Reset the DUT
+    dut_reset(dut, m_trace, sim_time);
+
+    // test_vsew_32(dut, m_trace, sim_time);
+    test_vsew_16(dut, m_trace, sim_time);
 
     return 0;
 }
-// int main(int argc, char **argv, char **env) {
-//     std::cout << "tb_rtl.cpp" << std::endl;
-
-//     // Initialize Verilator's command line arguments
-//     Verilated::commandArgs(argc, argv);
-
-//     // Create an instance of the DUT
-//     Vtest *dut = new Vtest;
-
-//     // Enable VCD tracing
-//     Verilated::traceEverOn(true);
-//     VerilatedVcdC *m_trace = new VerilatedVcdC;
-//     dut->trace(m_trace, 5);
-//     m_trace->open("waveform_rtl_test.vcd");
-
-//     // Initial reset
-//     dut->reset = 1;
-//     dut->clk = 0;
-//     dut->eval();
-//     m_trace->dump(sim_time);
-
-//     // De-assert reset after a few cycles
-//     for (int i = 0; i < 5; i++) {
-//         sim_time++;
-//         dut->clk = !dut->clk;
-//         dut->eval();
-//         m_trace->dump(sim_time);
-//     }
-//     dut->reset = 0;
-
-//     // Simulation loop
-//     while (sim_time < MAX_SIM_TIME) {
-//         // Toggle clock
-//         dut->clk = !dut->clk;
-//         sim_time++;
-
-//         // Apply test vectors
-//         if (sim_time == 10) {
-//             dut->in_a = 0x3f800000; // 1.0 in IEEE 754
-//             dut->in_b = 0x40000000; // 2.0 in IEEE 754
-//         } else if (sim_time == 20) {
-//             dut->in_a = 0x40400000; // 3.0 in IEEE 754
-//             dut->in_b = 0x40800000; // 4.0 in IEEE 754
-//         }
-//         // Additional test cases can be added here
-
-//         // Evaluate DUT
-//         dut->eval();
-//         m_trace->dump(sim_time);
-
-//         // Print output for debugging
-//         std::cout << "Time: " << sim_time
-//                   << " | in_a: " << std::hex << dut->in_a
-//                   << " | in_b: " << std::hex << dut->in_b
-//                   << " | out: " << std::hex << dut->out
-//                   << std::dec << std::endl;
-//     }
-
-//     // Final evaluation to catch any last changes
-//     dut->eval();
-//     m_trace->dump(sim_time);
-
-//     // Cleanup
-//     m_trace->close();
-//     delete dut;
-//     delete m_trace;
-
-//     std::cout << "Simulation finished" << std::endl;
-//     return 0;
-// }
