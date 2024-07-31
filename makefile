@@ -81,7 +81,7 @@ waveform_rtl_test.vcd: ./obj_dir/Vtest
 .stamp.verilate_rtl_test: ./rtl/test.v $(RTL_TEST_CSRC)
 	@echo
 	@echo "### VERILATING RTL TEST ###"
-	verilator -Wno-latch -Wno-unoptflat --trace -cc $(VSRCS) --exe $(RTL_TEST_CSRC) --top-module test
+	verilator -Wno-width -Wno-latch -Wno-unoptflat --trace -cc $(VSRCS) --exe $(RTL_TEST_CSRC) --top-module test
 	@touch .stamp.verilate_rtl_test
 
 .PHONY: run_rtl_test

@@ -1,9 +1,9 @@
 
 module vec_processing_element (
-                               input [31:0]  a,
-                               input [31:0]  b,
+                               input [63:0]  a,
+                               input [63:0]  b,
                                input [5:0]   funct6,
-                               output [31:0] result
+                               output reg [63:0] result
                                );
 
    localparam                                VADD = 6'b000000;
@@ -16,15 +16,17 @@ module vec_processing_element (
    localparam                                VSLIDEDOWN = 6'b001111;
 
    always @(*) begin
-      VADD: result = a + b;
-      VSUB: result = a - b;
-      VAND: result = a & b;
-      VOR: result = a | b;
-      VXOR: result = a ^ b;
-      VMV: result = a;
-      VSLIDEUP: result = (a << b[4:0]) | (a >> (32 - b[4:0])); // Barrel shift left
-      VSLIDEDOWN: result = (a >> b[4:0]) | (a << (32 - b[4:0]));
-      default: result = 32'b0;
+      case(funct6)
+        VADD: result = a + b;
+        VSUB: result = a - b;
+        VAND: result = a & b;
+        VOR: result = a | b;
+        VXOR: result = a ^ b;
+        VMV: result = a;
+        VSLIDEUP: result = (a << b[4:0]) | (a >> (32 - b[4:0])); // Barrel shift left
+        VSLIDEDOWN: result = (a >> b[4:0]) | (a << (32 - b[4:0]));
+        default: result = 64'b0;
+      endcase
    end
 
 endmodule

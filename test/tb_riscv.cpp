@@ -299,7 +299,7 @@ int main(int argc, char ** argv, char ** env) {
 
     RiscvInDriver inDriver(&dut, &scb);
 
-    inDriver.drive(&dh_tt);
+    inDriver.drive(&tt);
 
     RiscvOutMonitor outMonitor(&dut, &scb);
 
