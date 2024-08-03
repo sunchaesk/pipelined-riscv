@@ -1,4 +1,10 @@
 
+
+// From RVV 1.0.0 Frozen:
+// vector mask reg (v0):
+// vector mask occupies only 1 vector register
+// mask bit for element i is in the i-th bit of the mask register
+// independent of SEW or LMUL
 module vec_processing_element (
                                input [63:0]  a,
                                input [63:0]  b,
