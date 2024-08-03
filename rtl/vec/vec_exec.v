@@ -6,10 +6,13 @@ module vec_exec #(
                     input                 clk,
                     input                 reset,
                     input                 new_instr, // reset count to 0
+                    input [1:0]           vec_src_d,
                     input [2:0]           vsew,
                     input [5:0]           funct6,
-                    input [VLEN-1:0]      operand_a,
-                    input [VLEN-1:0]      operand_b,
+                    input [VLEN-1:0]      v_operand_a,
+                    input [VLEN-1:0]      v_operand_b,
+                    input [4:0]           v_imm,
+                    input [31:0]          v_reg,
                     output reg [VLEN-1:0] vec_exec_out,
                     output reg            vec_op_done
                     );
@@ -29,6 +32,8 @@ module vec_exec #(
    reg [63:0]                             pe_a [NUM_PE-1:0];
    reg [63:0]                             pe_b [NUM_PE-1:0];
    wire [63:0]                            pe_result [NUM_PE-1:0];
+
+   wire [63:0]                            v_imm_ext = {{59{v_imm[4]}}, v_imm};
 
    generate
       genvar                              pe_idx;
@@ -57,24 +62,53 @@ module vec_exec #(
       for (i = 0; i < NUM_PE; i = i + 1) begin
          case (vsew)
            VSEW_8: begin
-              pe_a[i] = operand_a[(count * NUM_PE + i) * 8 +: 8];
-              pe_b[i] = operand_b[(count * NUM_PE + i) * 8 +: 8];
+              pe_a[i] = v_operand_a[(count * NUM_PE + i) * 8 +: 8];
+              case (vec_src_d)
+                2'b00: pe_b[i] = v_operand_b[(count * NUM_PE + i) * 8 +: 8];
+                2'b01: pe_b[i] = v_reg;
+                2'b10: pe_b[i] = v_imm_ext;
+                default: pe_b[i] = v_operand_b[(count * NUM_PE + i) * 8 +: 8];
+              endcase
+              // pe_b[i] = operand_b[(count * NUM_PE + i) * 8 +: 8];
            end
            VSEW_16: begin
-              pe_a[i] = operand_a[(count * NUM_PE + i) * 16 +: 16];
-              pe_b[i] = operand_b[(count * NUM_PE + i) * 16 +: 16];
+              pe_a[i] = v_operand_a[(count * NUM_PE + i) * 16 +: 16];
+              case (vec_src_d)
+                2'b00: pe_b[i] = v_operand_b[(count * NUM_PE + i) * 16 +: 16];
+                2'b01: pe_b[i] = v_reg;
+                2'b10: pe_b[i] = v_imm_ext;
+                default: pe_b[i] = v_operand_b[(count * NUM_PE + i) * 16 +: 16];
+              endcase
+              // pe_b[i] = operand_b[(count * NUM_PE + i) * 16 +: 16];
            end
            VSEW_32: begin
-              pe_a[i] = operand_a[(count * NUM_PE + i) * 32 +: 32];
-              pe_b[i] = operand_b[(count * NUM_PE + i) * 32 +: 32];
+              pe_a[i] = v_operand_a[(count * NUM_PE + i) * 32 +: 32];
+              case (vec_src_d)
+                2'b00: pe_b[i] = v_operand_b[(count * NUM_PE + i) * 32 +: 32];
+                2'b01: pe_b[i] = v_reg;
+                2'b10: pe_b[i] = v_imm_ext;
+                default: pe_b[i] = v_operand_b[(count * NUM_PE + i) * 32 +: 32];
+              endcase
+              //pe_b[i] = operand_b[(count * NUM_PE + i) * 32 +: 32];
            end
            VSEW_64: begin
-              pe_a[i] = operand_a[(count * NUM_PE + i) * 64 +: 64];
-              pe_b[i] = operand_b[(count * NUM_PE + i) * 64 +: 64];
+              pe_a[i] = v_operand_a[(count * NUM_PE + i) * 64 +: 64];
+              case (vec_src_d)
+                2'b00: pe_b[i] = v_operand_b[(count * NUM_PE + i) * 64 +: 64];
+                2'b01: pe_b[i] = v_reg;
+                2'b10: pe_b[i] = v_imm_ext;
+                default: pe_b[i] = v_operand_b[(count * NUM_PE + i) * 64 +: 64];
+              endcase
+              // pe_b[i] = operand_b[(count * NUM_PE + i) * 64 +: 64];
            end
            default: begin
-              pe_a[i] = operand_a[(count * NUM_PE + i) * 32 +: 32];
-              pe_b[i] = operand_b[(count * NUM_PE + i) * 32 +: 32];
+              pe_a[i] = v_operand_a[(count * NUM_PE + i) * 32 +: 32];
+              case (vec_src_d)
+                2'b00: pe_b[i] = v_operand_b[(count * NUM_PE + i) * 32 +: 32];
+                2'b01: pe_b[i] = v_reg;
+                2'b10: pe_b[i] = v_imm_ext;
+              endcase
+              // pe_b[i] = operand_b[(count * NUM_PE + i) * 32 +: 32];
            end
          endcase
       end

@@ -76,6 +76,7 @@ void test_vsew_32(Vtest *dut, VerilatedVcdC* m_trace, vluint64_t& sim_time){
     std::cout << "Simulation finished" << std::endl;
 }
 
+
 void test_vsew_16(Vtest *dut, VerilatedVcdC* m_trace, vluint64_t& sim_time) {
     // Set input values
     dut->vsew = 0b001; // Example value for vsew (16-bit)
@@ -147,6 +148,69 @@ void test_vsew_16(Vtest *dut, VerilatedVcdC* m_trace, vluint64_t& sim_time) {
 
     std::cout << "Simulation finished" << std::endl;
 }
+
+
+void test_vx_32(Vtest *dut, VerilatedVcdC * m_trace, vluint64_t &sim_time){
+    dut->vsew = 0b010; // Example value for vsew
+    dut->funct6 = 0b000000; // Example value for funct6
+
+    uint32_t operand_a_arr[8] = {
+        0x01010101, 0x01010101, 0x02020202, 0x02020202,
+        0x03030303, 0x03030303, 0x04040404, 0x40404040
+    };
+    uint32_t operand_b_arr[8] = {
+        0x10101010, 0x10101010, 0x20202020, 0x20202020,
+        0x30303030, 0x30303030, 0x40404040, 0x04040404
+    };
+
+    for (int i = 0; i < 8; ++i){
+        dut->operand_a[i] = operand_a_arr[i];
+        dut->operand_b[i] = operand_b_arr[i];
+    }
+
+    uint32_t v_reg = 0x1;
+    uint32_t v_imm = 0x2;
+    uint32_t vec_src = 0b10;
+    dut->reg_val = v_reg;
+    dut->imm = v_imm;
+    dut->vec_src_d = vec_src;
+
+    dut->new_instr = 1;
+    m_trace->dump(sim_time++);
+    dut->new_instr = 0;
+
+    while (sim_time < MAX_SIM_TIME) {
+        dut->clk = !dut->clk; // clock toggle
+        dut->eval(); // eval dut
+        m_trace->dump(sim_time);
+        sim_time++;
+
+        if (dut->vec_op_done == 1){
+            std::cout << "FINISHED VEC OP" << std::endl;
+
+            std::cout << "input operand_a: ";
+            for (int i = 0; i < 8; ++i) {
+                std::cout << std::hex << dut->operand_a[i] << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "input operand_b: ";
+            for (int i = 0; i < 8; ++i){
+                std::cout << std::hex << dut->operand_b[i] << " ";
+            }
+            std::cout << std::endl;
+
+            std::cout << "vec_exec_out: ";
+            for (int i = 0; i < 8; ++i) {
+                std::cout << std::hex << dut->vec_exec_out[i] << " ";
+            }
+            std::cout << std::endl;
+            break;
+        }
+    }
+
+}
+
 int main(int argc, char** argv) {
     std::cout << "tb_rtl.cpp" << std::endl;
 
@@ -170,7 +234,8 @@ int main(int argc, char** argv) {
     dut_reset(dut, m_trace, sim_time);
 
     // test_vsew_32(dut, m_trace, sim_time);
-    test_vsew_16(dut, m_trace, sim_time);
+    // test_vsew_16(dut, m_trace, sim_time);
+    test_vx_32(dut, m_trace, sim_time);
 
     return 0;
 }
