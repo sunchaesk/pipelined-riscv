@@ -470,3 +470,71 @@ std::string JALRInstr::toString() const {
         << "(x" << static_cast<int>(rs1) << ")";
     return oss.str();
 }
+
+////////////////////////////////////////////////////////////////////////////////////
+///    RISCV "V" Extension
+////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////
+// VV
+////////////////////////////////////
+VVTypeInstr::VVTypeInstr(uint8_t vd, uint8_t vs1, uint8_t vs2, uint8_t vm, VVTypeOps vv_ops, uint8_t opcode)
+    : vd(vd), vs1(vs1), vs2(vs2), vm(vm), opcode(opcode){
+    setFunctBits(vv_ops);
+}
+
+void VVTypeInstr::setFunctBits(VVTypeOps vv_ops){
+
+}
+
+std::string VVTypeInstr::toString() const {
+
+}
+
+uint32_t VVTypeInstr::encode() const {
+
+}
+
+////////////////////////////////////
+// VX
+////////////////////////////////////
+VXTypeInstr::VXTypeInstr(uint8_t vd, uint8_t rs1, uint8_t vs2, uint8_t vm, VXTypeOps vx_ops, uint8_t opcode)
+    : vd(vd), rs1(rs1), vs2(vs2), vm(vm), opcode(opcode){
+    setFunctBits(vx_ops);
+}
+
+void VXTypeInstr::setFunctBits(VXTypeOps vx_ops){
+
+}
+
+std::string VXTypeInstr::toString() const {
+
+}
+
+uint32_t VXTypeInstr::encode() const {
+
+}
+////////////////////////////////////
+// VI
+////////////////////////////////////
+VITypeInstr::VITypeInstr(uint8_t vd, uint8_t imm, uint8_t vs2, uint8_t vm, VITypeOps vi_ops, uint8_t opcode)
+    : vd(vd), imm(imm), vs2(vs2), vm(vm), opcode(opcode){
+    setFunctBits(vi_ops);
+    checkImmediateRange(imm);
+}
+
+void checkImmediateRange(int16_t imm) const {
+
+}
+
+void VITypeInstr::setFunctBits(VITypeOps vi_ops){
+
+}
+
+std::string VITypeInstr::toString() const {
+
+}
+
+uint32_t VITypeInstr::encode() const {
+
+}
