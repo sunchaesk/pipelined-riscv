@@ -18,16 +18,17 @@ RISCV processor with incremental features added from the base 5 stage pipeline m
   - Random RV32I (R, I type instr) data hazard UVM sequencer
 - pipeline to compile using GCC toolchain to run on CPU
 - synthesis
+- RISCV V extension
 
 ## WIP
-- RISCV V extension
+
 
 ## features TODO
 - branch prediction unit
-- vector processing unit (RISCV V - instr extension)
 - superscalar
 - out-of-order execution
 - floating point (FPU)
+- add testing with RISCV Spike (https://github.com/riscv-software-src/riscv-isa-sim) (not only it is the official simulator, RARS don't support vector instructions with Spike supports vector instruction simulation)
 
 ## extra stuff
 - run on Coremark benchmark
