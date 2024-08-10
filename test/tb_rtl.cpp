@@ -4,6 +4,7 @@
 #include "Vtest.h"
 
 #include "isa_gen.hpp"
+#include "rvv_gen.hpp"
 
 const vluint64_t MAX_SIM_TIME = 1000;
 
@@ -256,6 +257,29 @@ int main(int argc, char ** argv) {
     std::cout << "VSLIDEUP.vi String: " << vslideup_str << "\n";
 
 
+    ///// /
+
+    std::cout << std::endl << std::endl << "### TESTING RISCV V-EXT SEQUENCER ###" << std::endl;
+    // Define allowed operations and registers
+    std::unordered_set<uint8_t> allowedRegisters = {0, 1, 2, 3};
+    std::unordered_set<uint8_t> allowedVecRegisters = {4, 5, 6, 7};
+    std::unordered_set<VXTypeInstr::VXTypeOps> allowedVXTypeOps = {VXTypeInstr::VXTypeOps::VADD, VXTypeInstr::VXTypeOps::VSUB, VXTypeInstr::VXTypeOps::VMV};
+    std::unordered_set<VVTypeInstr::VVTypeOps> allowedVVTypeOps = {VVTypeInstr::VVTypeOps::VADD, VVTypeInstr::VVTypeOps::VOR};
+    std::unordered_set<VITypeInstr::VITypeOps> allowedVITypeOps = {VITypeInstr::VITypeOps::VADD, VITypeInstr::VITypeOps::VXOR, VITypeInstr::VITypeOps::VAND};
+
+    // Create the sequencer
+    RiscvVectorExtSequencer sequencer(
+        allowedRegisters, allowedVecRegisters,
+        allowedVITypeOps, allowedVXTypeOps, allowedVVTypeOps
+    );
+
+    // Generate instructions
+    auto InTx = sequencer.generateRiscvVectorExtensionInstructions(10);
+
+    // Print the instructions' assembly representation
+    for (const auto& instr : InTx.instructions) {
+        std::cout << instr->toString() << std::endl;
+    }
 
     return 0;
 }

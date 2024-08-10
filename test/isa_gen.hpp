@@ -315,7 +315,7 @@ class VVTypeInstr : public RiscvVExtInstruction {
                 VXOR,
                 VOR,
                 VAND,
-                VMV,
+                VMV
                 // VSLIDEUP, // NOTE: vslideup.vv and vslidedown.vv doesn't exist
                 // VSLIDEDOWN
         };
