@@ -3,6 +3,8 @@
 #include <verilated_vcd_c.h>
 #include "Vtest.h"
 
+#include "isa_gen.hpp"
+
 const vluint64_t MAX_SIM_TIME = 1000;
 
 void dut_reset(Vtest* dut, VerilatedVcdC* trace, vluint64_t& sim_time) {
@@ -18,13 +20,13 @@ void test_vsew_32(Vtest *dut, VerilatedVcdC* m_trace, vluint64_t& sim_time){
     dut->funct6 = 0b000000; // Example value for funct6
 
     uint32_t operand_a_arr[8] = {
-        0x01010101, 0x01010101, 0x02020202, 0x02020202,
-        0x03030303, 0x03030303, 0x04040404, 0x40404040
-    };
+    0x01010101, 0x01010101, 0x02020202, 0x02020202,
+    0x03030303, 0x03030303, 0x04040404, 0x40404040
+};
     uint32_t operand_b_arr[8] = {
-        0x10101010, 0x10101010, 0x20202020, 0x20202020,
-        0x30303030, 0x30303030, 0x40404040, 0x04040404
-    };
+    0x10101010, 0x10101010, 0x20202020, 0x20202020,
+    0x30303030, 0x30303030, 0x40404040, 0x04040404
+};
 
     for (int i = 0; i < 8; ++i) {
         dut->operand_a[i] = operand_a_arr[i];
@@ -83,17 +85,17 @@ void test_vsew_16(Vtest *dut, VerilatedVcdC* m_trace, vluint64_t& sim_time) {
     dut->funct6 = 0b000000; // Example value for funct6
 
     uint16_t operand_a_arr[16] = {
-        0x0101, 0x0101, 0x0202, 0x0202,
-        0x0303, 0x0303, 0x0404, 0x0404,
-        0x0505, 0x0505, 0x0606, 0x0606,
-        0x0707, 0x0707, 0x0808, 0x0808
-    };
+    0x0101, 0x0101, 0x0202, 0x0202,
+    0x0303, 0x0303, 0x0404, 0x0404,
+    0x0505, 0x0505, 0x0606, 0x0606,
+    0x0707, 0x0707, 0x0808, 0x0808
+};
     uint16_t operand_b_arr[16] = {
-        0x1010, 0x1010, 0x2020, 0x2020,
-        0x3030, 0x3030, 0x4040, 0x4040,
-        0x5050, 0x5050, 0x6060, 0x6060,
-        0x7070, 0x7070, 0x8080, 0x8080
-    };
+    0x1010, 0x1010, 0x2020, 0x2020,
+    0x3030, 0x3030, 0x4040, 0x4040,
+    0x5050, 0x5050, 0x6060, 0x6060,
+    0x7070, 0x7070, 0x8080, 0x8080
+};
 
     // Set the input operands
     for (int i = 0; i < 8; ++i) {
@@ -155,13 +157,13 @@ void test_vx_32(Vtest *dut, VerilatedVcdC * m_trace, vluint64_t &sim_time){
     dut->funct6 = 0b000000; // Example value for funct6
 
     uint32_t operand_a_arr[8] = {
-        0x01010101, 0x01010101, 0x02020202, 0x02020202,
-        0x03030303, 0x03030303, 0x04040404, 0x40404040
-    };
+    0x01010101, 0x01010101, 0x02020202, 0x02020202,
+    0x03030303, 0x03030303, 0x04040404, 0x40404040
+};
     uint32_t operand_b_arr[8] = {
-        0x10101010, 0x10101010, 0x20202020, 0x20202020,
-        0x30303030, 0x30303030, 0x40404040, 0x04040404
-    };
+    0x10101010, 0x10101010, 0x20202020, 0x20202020,
+    0x30303030, 0x30303030, 0x40404040, 0x04040404
+};
 
     for (int i = 0; i < 8; ++i){
         dut->operand_a[i] = operand_a_arr[i];
@@ -211,31 +213,79 @@ void test_vx_32(Vtest *dut, VerilatedVcdC * m_trace, vluint64_t &sim_time){
 
 }
 
-int main(int argc, char** argv) {
-    std::cout << "tb_rtl.cpp" << std::endl;
+int main(int argc, char ** argv) {
+    // Test VVTypeInstr
+    std::cout << "Testing VVTypeInstr...\n";
 
-    Verilated::commandArgs(argc, argv);
+    // Test VADD.vv (example: vadd.vv v1, v2, v3)
+    VVTypeInstr vadd_instr(1, 2, 3, 0, VVTypeInstr::VVTypeOps::VADD);
+    uint32_t vadd_encoding = vadd_instr.encode();
+    std::string vadd_str = vadd_instr.toString();
 
-    // Initialize Vtest module
-    Vtest* dut = new Vtest;
+    std::cout << "VADD Encoding: 0x" << std::hex << vadd_encoding << std::dec << "\n";
+    std::cout << "VADD String: " << vadd_str << "\n";
 
-    // Enable VCD tracing
-    Verilated::traceEverOn(true);
-    VerilatedVcdC* m_trace = new VerilatedVcdC;
-    dut->trace(m_trace, 99); // Add all signals with verbosity level 99
-    m_trace->open("waveform_rtl_test.vcd");
 
-    // Add signals to trace manually
+    // Test VXOR.vv (example: vxor.vv v4, v5, v6)
+    VVTypeInstr vxor_instr(4, 5, 6, 0, VVTypeInstr::VVTypeOps::VXOR);
+    uint32_t vxor_encoding = vxor_instr.encode();
+    std::string vxor_str = vxor_instr.toString();
 
-    // Initialize simulation time
-    vluint64_t sim_time = 0;
+    std::cout << "VXOR Encoding: 0x" << std::hex << vxor_encoding << std::dec << "\n";
+    std::cout << "VXOR String: " << vxor_str << "\n";
 
-    // Reset the DUT
-    dut_reset(dut, m_trace, sim_time);
 
-    // test_vsew_32(dut, m_trace, sim_time);
-    // test_vsew_16(dut, m_trace, sim_time);
-    test_vx_32(dut, m_trace, sim_time);
+    // Test VITypeInstr
+    std::cout << "Testing VITypeInstr...\n";
+
+    // Test VADD.vi (example: vadd.vi v1, v2, 10)
+    VITypeInstr vadd_vi_instr(1, 10, 2, 0, VITypeInstr::VITypeOps::VADD);
+    uint32_t vadd_vi_encoding = vadd_vi_instr.encode();
+    std::string vadd_vi_str = vadd_vi_instr.toString();
+
+    std::cout << "VADD.vi Encoding: 0x" << std::hex << vadd_vi_encoding << std::dec << "\n";
+    std::cout << "VADD.vi String: " << vadd_vi_str << "\n";
+
+
+    // Test VSLIDEUP.vi (example: vslideup.vi v3, v4, 5)
+    VITypeInstr vslideup_instr(3, 5, 4, 0, VITypeInstr::VITypeOps::VSLIDEUP);
+    uint32_t vslideup_encoding = vslideup_instr.encode();
+    std::string vslideup_str = vslideup_instr.toString();
+
+    std::cout << "VSLIDEUP.vi Encoding: 0x" << std::hex << vslideup_encoding << std::dec << "\n";
+    std::cout << "VSLIDEUP.vi String: " << vslideup_str << "\n";
+
+
 
     return 0;
 }
+
+// main() for running verilator
+// int main(int argc, char** argv) {
+//     std::cout << "tb_rtl.cpp" << std::endl;
+
+//     Verilated::commandArgs(argc, argv);
+
+//     // Initialize Vtest module
+//     Vtest* dut = new Vtest;
+
+//     // Enable VCD tracing
+//     Verilated::traceEverOn(true);
+//     VerilatedVcdC* m_trace = new VerilatedVcdC;
+//     dut->trace(m_trace, 99); // Add all signals with verbosity level 99
+//     m_trace->open("waveform_rtl_test.vcd");
+
+//     // Add signals to trace manually
+
+//     // Initialize simulation time
+//     vluint64_t sim_time = 0;
+
+//     // Reset the DUT
+//     dut_reset(dut, m_trace, sim_time);
+
+//     // test_vsew_32(dut, m_trace, sim_time);
+//     // test_vsew_16(dut, m_trace, sim_time);
+//     test_vx_32(dut, m_trace, sim_time);
+
+//     return 0;
+// }

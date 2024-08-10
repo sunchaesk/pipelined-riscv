@@ -3,8 +3,13 @@
 MODULE=riscv
 
 VSRCS:=$(wildcard ./rtl/*.v) $(wildcard ./rtl/vec/*.v)
+
 CSRCS:= ./test/tb_$(MODULE).cpp ./test/uvm.cpp ./test/isa_gen.cpp ./test/data_hazard_gen.cpp
+# CSRCS:=$(wildcard ./test/*.cpp)
+# CSRCS:=$(filter-out ./test/tb_rtl.cpp, $(CSRCS))
 RTL_TEST_CSRC:=./test/tb_rtl.cpp ./test/uvm.cpp ./test/isa_gen.cpp ./test/data_hazard_gen.cpp
+# RTL_TEST_CSRC:=$(wildcard ./test/*.cpp)
+# RTL_TEST_CSRC:=$(filter-out ./test/tb_$(MODULE).cpp, $(RTL_TEST_CSRC))
 
 .PHONY:sim
 sim: waveform.vcd

@@ -484,17 +484,72 @@ VVTypeInstr::VVTypeInstr(uint8_t vd, uint8_t vs1, uint8_t vs2, uint8_t vm, VVTyp
 }
 
 void VVTypeInstr::setFunctBits(VVTypeOps vv_ops){
-
+    switch (vv_ops){
+        case VVTypeOps::VADD:
+            funct6 = 0b000000;
+            break;
+        case VVTypeOps::VSUB:
+            funct6 = 0b000010;
+            break;
+        case VVTypeOps::VXOR:
+            funct6 = 0b001011;
+            break;
+        case VVTypeOps::VOR:
+            funct6 = 0b001010;
+            break;
+        case VVTypeOps::VAND:
+            funct6 = 0b001001;
+            break;
+        case VVTypeOps::VMV:
+            funct6 = 0b010111;
+            break;
+        default:
+            throw std::invalid_argument("Invalid VV-Type instruction operation");
+    }
 }
 
 std::string VVTypeInstr::toString() const {
-
+    std::ostringstream oss;
+    switch (funct6) {
+        case 0b000000:
+            oss << "vadd.vv";
+            break;
+        case 0b000010:
+            oss << "vsub.vv";
+            break;
+        case 0b001011:
+            oss << "vxor.vv";
+            break;
+        case 0b001010:
+            oss << "vor.vv";
+            break;
+        case 0b001001:
+            oss << "vand.vv";
+            break;
+        case 0b010111:
+            oss << "vmv.vv";
+            break;
+        default:
+            throw std::invalid_argument("ERROR: something must be wrong with encode()");
+    }
+    oss << " v" << static_cast<int>(vd) << ","
+        << " v" << static_cast<int>(vs1) << ","
+        << " v" << static_cast<int>(vs2);
+    if (vm == 0){
+        oss << ", v0";
+    }
+    return oss.str();
 }
 
 uint32_t VVTypeInstr::encode() const {
-
+    return (static_cast<uint32_t>(funct6) << 26) |
+           (static_cast<uint32_t>(vm) << 25) |
+           (static_cast<uint32_t>(vs2) << 20) |
+           (static_cast<uint32_t>(vs1) << 15) |
+           (static_cast<uint32_t>(VVTYPE_WIDTH) << 12) |  // VVTYPE_WIDTH is always 000
+           (static_cast<uint32_t>(vd) << 7) |
+           opcode;
 }
-
 ////////////////////////////////////
 // VX
 ////////////////////////////////////
@@ -504,15 +559,83 @@ VXTypeInstr::VXTypeInstr(uint8_t vd, uint8_t rs1, uint8_t vs2, uint8_t vm, VXTyp
 }
 
 void VXTypeInstr::setFunctBits(VXTypeOps vx_ops){
-
+    switch (vx_ops){
+        case VXTypeOps::VADD:
+            funct6 = 0b000000;
+            break;
+        case VXTypeOps::VSUB:
+            funct6 = 0b000010;
+            break;
+        case VXTypeOps::VXOR:
+            funct6 = 0b001011;
+            break;
+        case VXTypeOps::VOR:
+            funct6 = 0b001010;
+            break;
+        case VXTypeOps::VAND:
+            funct6 = 0b001001;
+            break;
+        case VXTypeOps::VMV:
+            funct6 = 0b010111;
+            break;
+        case VXTypeOps::VSLIDEUP:
+            funct6 = 0b001110;
+            break;
+        case VXTypeOps::VSLIDEDOWN:
+            funct6 = 0b001111;
+            break;
+        default:
+            throw std::invalid_argument("Invalid VX-Type instruction operation");
+    }
 }
 
 std::string VXTypeInstr::toString() const {
-
+    std::ostringstream oss;
+    switch (funct6) {
+        case 0b000000:
+            oss << "vadd.vx";
+            break;
+        case 0b000010:
+            oss << "vsub.vx";
+            break;
+        case 0b001011:
+            oss << "vxor.vx";
+            break;
+        case 0b001010:
+            oss << "vor.vx";
+            break;
+        case 0b001001:
+            oss << "vand.vx";
+            break;
+        case 0b010111:
+            oss << "vmv.vx";
+            break;
+        case 0b001110:
+            oss << "vslideup.vx";
+            break;
+        case 0b001111:
+            oss << "vslidedown.vx";
+            break;
+        default:
+            throw std::invalid_argument("ERROR: something must be wrong with encode()");
+    }
+    oss << " v" << static_cast<int>(vd) << ","
+        << " x" << static_cast<int>(rs1) << ","
+        << " v" << static_cast<int>(vs2);
+    if (vm == 0){
+        oss << ", v0";
+    }
+    return oss.str();
 }
 
 uint32_t VXTypeInstr::encode() const {
-
+    return (static_cast<uint32_t>(funct6) << 26) |
+           (static_cast<uint32_t>(vm) << 25) |
+           (static_cast<uint32_t>(vs2) << 20) |
+           (static_cast<uint32_t>(rs1) << 15) |
+           (static_cast<uint32_t>(VXTYPE_WIDTH) << 12) |  // VVTYPE_WIDTH is always 000
+           (static_cast<uint32_t>(vd) << 7) |
+           opcode;
 }
 ////////////////////////////////////
 // VI
@@ -523,18 +646,81 @@ VITypeInstr::VITypeInstr(uint8_t vd, uint8_t imm, uint8_t vs2, uint8_t vm, VITyp
     checkImmediateRange(imm);
 }
 
-void checkImmediateRange(int16_t imm) const {
-
+void VITypeInstr::checkImmediateRange(int16_t imm) const {
+    if (imm < -16 || imm > 15) {
+        throw std::out_of_range("Immediate value for 5 bit was exceeded");
+    }
 }
 
 void VITypeInstr::setFunctBits(VITypeOps vi_ops){
-
+    switch (vi_ops){
+        case VITypeOps::VADD:
+            funct6 = 0b000000;
+            break;
+        case VITypeOps::VXOR:
+            funct6 = 0b001011;
+            break;
+        case VITypeOps::VOR:
+            funct6 = 0b001010;
+            break;
+        case VITypeOps::VAND:
+            funct6 = 0b001001;
+            break;
+        case VITypeOps::VMV:
+            funct6 = 0b010111;
+            break;
+        case VITypeOps::VSLIDEUP:
+            funct6 = 0b001110;
+            break;
+        case VITypeOps::VSLIDEDOWN:
+            funct6 = 0b001111;
+            break;
+        default:
+            throw std::invalid_argument("Invalid VI-Type instruction operation");
+    }
 }
 
 std::string VITypeInstr::toString() const {
-
+    std::ostringstream oss;
+    switch (funct6) {
+        case 0b000000:
+            oss << "vadd.vi";
+            break;
+        case 0b001011:
+            oss << "vxor.vi";
+            break;
+        case 0b001010:
+            oss << "vor.vi";
+            break;
+        case 0b001001:
+            oss << "vand.vi";
+            break;
+        case 0b010111:
+            oss << "vmv.vi";
+            break;
+        case 0b001110:
+            oss << "vslideup.vi";
+            break;
+        case 0b001111:
+            oss << "vslidedown.vi";
+            break;
+        default:
+            throw std::invalid_argument("ERROR: something must be wrong with encode()");
+    }
+    oss << " v" << static_cast<int>(vd) << ","
+        << " v" << static_cast<int>(vs2) << ","
+        << " " << static_cast<int>(imm);
+    if (vm == 0){
+        oss << ", v0";
+    }
+    return oss.str();
 }
 
 uint32_t VITypeInstr::encode() const {
-
+    return (static_cast<uint32_t>(funct6) << 26) |
+           (static_cast<uint32_t>(imm) << 20) |       // immediate value
+           (static_cast<uint32_t>(vs2) << 15) |       // source vector register
+           (static_cast<uint32_t>(VITYPE_WIDTH) << 12) |     // VI-type uses funct3 = 011
+           (static_cast<uint32_t>(vd) << 7) |         // destination vector register
+           opcode;                                    // opcode for vector instructions
 }
