@@ -265,6 +265,10 @@ class JALRInstr : public RiscvInstruction {
                 void checkImmediateRange(int16_t imm) const;
 };
 
+
+// NOTE: vector mask bit vm==1 -> unmasked vector operation
+// appending "v0"  to the end of the vector instruction will set the mask on
+
 class VXTypeInstr : public RiscvVExtInstruction {
         public:
                 enum class VXTypeOps {
